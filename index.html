@@ -1,175 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Bulk Order Formatter Tool – smmxhero</title>
-<meta name="description" content="Free bulk order formatter tool by smmxhero. Convert order IDs into comma-separated format instantly.">
+<title>SMMXHERO.COM | Bulk Tool</title>
+
+<link rel="icon" href="logo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-    --bg: #0f2027;
-    --card: rgba(0,0,0,0.55);
-    --text: #ffffff;
-    --input: #ffffff;
-    --accent: #00c6ff;
-}
-
-body.light {
-    --bg: #f2f2f2;
-    --card: #ffffff;
-    --text: #111;
-    --input: #eeeeee;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    font-family: Tahoma, Arial;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: white;
     display: flex;
-    align-items: center;
     justify-content: center;
-    color: var(--text);
-    transition: 0.3s;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.card {
-    background: var(--card);
-    padding: 25px;
-    width: 560px;
-    max-width: 95%;
-    border-radius: 16px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.5);
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.header h2 {
-    margin: 5px 0;
-}
-
-.header span {
-    font-size: 13px;
-    opacity: 0.8;
-}
-
-.top-bar {
+/* Loader */
+#loader {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #020617;
     display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 8px;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#loader img {
+    width: 100px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 600px;
+    background: #0f172a;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(37,99,235,0.3);
+    animation: fadeIn 1s ease;
+}
+
+/* Logo */
+.logo img {
+    width: 140px;
+    display: block;
+    margin: auto;
+    animation: glowFloat 3s infinite;
+    filter: drop-shadow(0 0 30px #3b82f6);
+}
+
+@keyframes glowFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+.brand {
+    text-align: center;
+    color: #3b82f6;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+h1 {
+    text-align: center;
+    margin: 10px 0 20px;
 }
 
 textarea {
     width: 100%;
-    height: 170px;
-    resize: none;
+    height: 150px;
     border-radius: 10px;
     border: none;
     padding: 12px;
-    font-size: 15px;
-    outline: none;
-    background: var(--input);
+    background: #020617;
+    color: white;
 }
 
+/* Options */
 .options {
     display: flex;
     gap: 10px;
     margin: 10px 0;
     flex-wrap: wrap;
-    align-items: center;
 }
 
-.options label {
-    font-size: 13px;
-    cursor: pointer;
-}
-
-select, button.small {
-    padding: 8px;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-button {
-    flex: 1;
-    padding: 12px;
-    border: none;
+select {
+    padding: 10px;
     border-radius: 10px;
-    font-size: 15px;
-    cursor: pointer;
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
-    color: #fff;
+    border: none;
 }
 
-button.secondary {
-    background: #555;
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 button:hover {
     transform: scale(1.03);
 }
 
+.secondary {
+    background: #555;
+}
+
+/* Result */
 .result {
     margin-top: 15px;
-    background: #111;
+    background: #020617;
     padding: 12px;
     border-radius: 10px;
-    word-break: break-all;
-    font-size: 14px;
     min-height: 40px;
 }
 
-.footer {
-    text-align: center;
-    font-size: 12px;
-    margin-top: 10px;
-    opacity: 0.7;
+/* CTA */
+.cta button {
+    animation: pulseBtn 1.5s infinite;
+    background: linear-gradient(90deg,#f59e0b,#facc15);
 }
 
-/* 🔔 Toast Notification */
+@keyframes pulseBtn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Toast */
 .toast {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #16a34a;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 14px;
+    background: #22c55e;
+    padding: 10px 20px;
+    border-radius: 10px;
     display: none;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: 0.7;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-    <div class="header">
-        <h2>Bulk Order Formatter</h2>
-        <span>smmxhero Tools</span>
+<!-- Loader -->
+<div id="loader">
+    <img src="logo.ico">
+</div>
+
+<div class="container" id="main" style="display:none;">
+
+    <div class="logo">
+        <img src="logo.ico">
     </div>
 
-    <div class="top-bar">
-        <span id="count">Orders: 0</span>
-        <span style="cursor:pointer" onclick="toggleMode()">🌙 / ☀</span>
-    </div>
+    <div class="brand">smmxhero.com</div>
 
-    <textarea id="input" placeholder="Paste order IDs here (one per line)"></textarea>
+    <h1>Bulk Order Formatter</h1>
+
+    <textarea id="input" placeholder="حط الأوردارات هنا (كل واحد في سطر)"></textarea>
 
     <div class="options">
         <select id="separator">
@@ -177,110 +198,81 @@ button:hover {
             <option value="|">Pipe (|)</option>
             <option value=";">Semicolon (;)</option>
         </select>
-
-        <label>
-            <input type="checkbox" id="dedupe" checked>
-            Remove duplicates
-        </label>
-
-        <button class="small" onclick="pasteClipboard()">Paste</button>
-        <button class="small" onclick="clearAll()">Clear</button>
     </div>
 
-    <div class="buttons">
-        <button onclick="convert()">Convert</button>
-        <button class="secondary" onclick="download()">Download TXT</button>
-    </div>
+    <button onclick="convert()">⚡ Convert</button>
+    <button class="secondary" onclick="clearAll()">🧹 Clear</button>
 
     <div class="result" id="result"></div>
 
-    <div class="footer">
-        © smmxhero.com – Free Tool
+    <!-- CTA -->
+    <div id="ctaBox" class="cta" style="display:none; text-align:center; margin-top:15px;">
+        <a href="https://smmxhero.com" target="_blank">
+            <button>🚀 اطلب من smmxhero</button>
+        </a>
     </div>
+
+    <div class="footer">
+        © 2026 smmxhero.com
+    </div>
+
 </div>
 
-<div class="toast" id="toast">Copied successfully</div>
+<div class="toast" id="toast">Copied ✅</div>
 
 <script>
-const input = document.getElementById("input");
-const result = document.getElementById("result");
-const count = document.getElementById("count");
-const separator = document.getElementById("separator");
-const dedupe = document.getElementById("dedupe");
-const toast = document.getElementById("toast");
-
-input.value = localStorage.getItem("orders") || "";
-updateCount();
-
-/* تنظيف: أرقام فقط */
-function cleanInput(val){
-    return val
-        .replace(/[^0-9]+/g," ")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-}
-
-/* إظهار إشعار */
-function showToast(msg){
-    toast.innerText = msg;
-    toast.style.display = "block";
+// Loader
+window.onload = () => {
     setTimeout(() => {
-        toast.style.display = "none";
+        loader.style.display = "none";
+        main.style.display = "block";
     }, 1500);
-}
+};
 
 function convert() {
-    let lines = cleanInput(input.value);
+    let val = document.getElementById("input").value
+        .replace(/[^0-9]+/g," ")
+        .trim()
+        .split(/\s+/);
 
-    if(dedupe.checked){
-        lines = [...new Set(lines)];
-    }
-
-    let output = lines.join(separator.value);
+    let output = val.join(document.getElementById("separator").value);
     result.innerText = output;
 
     if(output){
         navigator.clipboard.writeText(output);
-        showToast("Copied successfully ✔");
+        showToast();
     }
 
-    localStorage.setItem("orders", input.value);
+    document.getElementById("ctaBox").style.display = "block";
 }
 
 function clearAll() {
     input.value = "";
     result.innerText = "";
-    updateCount();
-    localStorage.removeItem("orders");
 }
 
-function updateCount() {
-    let lines = cleanInput(input.value);
-    count.innerText = "Orders: " + lines.length;
+function showToast(){
+    toast.style.display = "block";
+    setTimeout(()=> toast.style.display="none",1500);
 }
 
-input.addEventListener("input", updateCount);
+/* 🛡️ حماية */
+document.addEventListener("contextmenu", e => e.preventDefault());
 
-function pasteClipboard() {
-    navigator.clipboard.readText().then(text => {
-        input.value = text;
-        updateCount();
-    });
-}
+document.onkeydown = function(e) {
+    if (e.keyCode == 123) return false;
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 73) return false;
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 74) return false;
+    if (e.ctrlKey && e.keyCode == 85) return false;
+};
 
-function download() {
-    if(!result.innerText) return;
-    let blob = new Blob([result.innerText], { type: "text/plain" });
-    let a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "orders.txt";
-    a.click();
-}
-
-function toggleMode() {
-    document.body.classList.toggle("light");
-}
+setInterval(function() {
+    let width = window.outerWidth - window.innerWidth;
+    let height = window.outerHeight - window.innerHeight;
+    if (width > 200 || height > 200) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;'>🚫 ممنوع فتح أدوات المطور</h1>";
+    }
+}, 1000);
 </script>
 
 </body>
