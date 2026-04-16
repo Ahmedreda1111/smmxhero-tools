@@ -123,6 +123,10 @@ button {
     padding: 12px;
     border-radius: 10px;
     min-height: 40px;
+
+    /* 🔥 حل مشكلة السطر */
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 /* Toast */
@@ -163,7 +167,7 @@ button {
 
     <h1>Bulk Order Formatter</h1>
 
-    <textarea id="input" placeholder="حط الأوردارات هنا (كل واحد في سطر)"></textarea>
+    <textarea id="input" placeholder="حط الأوردارات هنا (أي فاصل: سطر / مسافة / ,)"></textarea>
 
     <select id="separator">
         <option value=",">Comma (,)</option>
@@ -201,18 +205,20 @@ window.onload = () => {
     }, 1500);
 };
 
-// Convert + Remove duplicates
+// 🔥 Convert + Remove duplicates (مظبوط 100%)
 function convert() {
-    let val = document.getElementById("input").value
-        .replace(/[^0-9]+/g," ")
-        .trim()
-        .split(/\s+/);
+    let input = document.getElementById("input").value;
+
+    let val = input
+        .split(/[\s,]+/) // يفصل بأي فاصل
+        .map(x => x.trim())
+        .filter(x => x !== "");
 
     let unique = [...new Set(val)];
 
     let output = unique.join(document.getElementById("separator").value);
 
-    result.innerText = output;
+    document.getElementById("result").innerText = output;
 
     if(output){
         navigator.clipboard.writeText(output);
@@ -224,8 +230,7 @@ function convert() {
 
 // Copy
 function copy() {
-    let text = result.innerText;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(document.getElementById("result").innerText);
     showToast();
 }
 
