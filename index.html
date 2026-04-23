@@ -1,148 +1,378 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMMXHERO | Pro Tools</title>
-    <link rel="icon" href="logo.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMMXHERO | Smart Dashboard</title>
+<link rel="icon" href="logo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+    /* المتغيرات الأساسية (الوضع الليلي افتراضي) */
+    :root {
+        --primary: #0d6efd;
+        --success: #12b886;
+        --danger: #fa5252;
+        --bg-dark: #1a1b1e;
+        --card-bg: #25262b;
+        --border: #373a40;
+        --text-main: #e5e7eb;
+        --text-dim: #909296;
+        --input-bg: #141517;
+    }
+
+    /* متغيرات الوضع النهاري */
+    .light-mode {
+        --bg-dark: #f8f9fa;
+        --card-bg: #ffffff;
+        --border: #dee2e6;
+        --text-main: #212529;
+        --text-dim: #6c757d;
+        --input-bg: #f1f3f5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 0; display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; }
+
+    #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.5s; }
+    #loader img { width: 80px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } }
+
+    header { width: 100%; background: var(--card-bg); padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-area img { width: 35px; height: 35px; border-radius: 50%; }
+    .logo-area span { color: var(--text-main); font-size: 20px; font-weight: 800; }
+    .logo-area span b { color: var(--primary); }
+
+    /* زر تبديل الإضاءة */
+    .theme-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+    .theme-toggle:hover { opacity: 0.8; }
+
+    .dashboard { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
+
+    .tabs-header { display: flex; gap: 10px; margin-bottom: 25px; background: var(--card-bg); padding: 6px; border-radius: 15px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 12px; font-weight: 700; transition: 0.3s; }
+    .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+
+    .tab-content { display: none; background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 30px; animation: slideUp 0.4s ease; }
+    .tab-content.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--text-dim); }
+    .form-control { width: 100%; margin-bottom: 15px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 14px; outline: none; transition: 0.3s; }
+    .form-control:focus { border-color: var(--primary); }
+
+    .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    .smart-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: 600; padding: 0 5px; }
+    #platformDetect { color: var(--primary); }
 
-    <style>
-        :root {
-            --primary: #0d6efd;
-            --success: #12b886;
-            --danger: #fa5252;
-            --bg: #1a1b1e;
-            --card: #25262b;
-            --border: #373a40;
-            --text: #e5e7eb;
-        }
+    .mode-selector { display: flex; background: var(--input-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-size: 13px; font-weight: 700; }
+    .m-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; }
 
-        /* شاشة الدخول */
-        #authOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .auth-card { background: var(--card); width: 100%; max-width: 400px; padding: 30px; border-radius: 20px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        header { width: 100%; background: var(--card); padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 800; font-size: 20px; text-decoration: none; color: #fff; }
-        .points-badge { background: rgba(18, 184, 134, 0.1); color: var(--success); padding: 5px 15px; border-radius: 50px; border: 1px solid var(--success); font-weight: 700; font-size: 14px; }
+    .stats-box { background: rgba(18, 184, 134, 0.1); border: 1px solid var(--success); padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; display: none; }
+    .stats-box p { color: var(--success); font-size: 13px; font-weight: 700; }
 
-        .container { width: 100%; max-width: 800px; margin: 20px auto; padding: 0 20px; flex: 1; display: none; }
-        .tab-content { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
+    .action-btns { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
+    .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
 
-        .form-control { width: 100%; margin-bottom: 15px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #141517; color: #fff; font-size: 14px; outline: none; }
-        .btn-main { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 10px 25px; border-radius: 50px; display: none; z-index: 10000; border: 1px solid var(--primary); }
-    </style>
+    /* زر واتساب العائم */
+    .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: 0.3s; text-decoration: none; font-size: 30px; }
+    .whatsapp-float:hover { transform: scale(1.1); background: #128c7e; }
+    .whatsapp-float span { position: absolute; right: 70px; background: #25d366; padding: 5px 15px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transition: 0.3s; }
+    .whatsapp-float:hover span { opacity: 1; right: 80px; }
+
+    footer { width: 100%; background: var(--card-bg); padding: 25px; text-align: center; border-top: 1px solid var(--border); margin-top: auto; }
+    footer p { color: var(--text-dim); font-size: 13px; }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 700; }
+</style>
 </head>
 <body>
 
-<div id="authOverlay">
-    <div class="auth-card">
-        <h2 style="margin-bottom: 15px;">SMMXHERO Tools</h2>
-        <input type="email" id="email" class="form-control" placeholder="البريد الإلكتروني">
-        <input type="password" id="password" class="form-control" placeholder="كلمة المرور">
-        <button class="btn-main" onclick="handleAuth('login')">تسجيل الدخول</button>
-        <button class="btn-main" style="background: transparent; border: 1px solid var(--border); margin-top: 10px;" onclick="handleAuth('register')">إنشاء حساب جديد (5 نقاط هدية)</button>
-        <div id="authMsg" style="font-size: 11px; margin-top: 10px; color: var(--danger);"></div>
-    </div>
-</div>
+<div id="loader"><img src="logo.ico" alt="Loading"></div>
 
-<header id="mainHeader" style="display: none;">
-    <div class="logo">SMMX<b>HERO</b></div>
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <div class="points-badge">💰 <span id="pointsBalance">0</span> نقطة</div>
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:700;">خروج</button>
-    </div>
+<header>
+    <a href="https://smmxhero.com" class="logo-area">
+        <img src="logo.ico" alt="Logo">
+        <span>SMMX<b>HERO</b></span>
+    </a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 الوضع الليلي</button>
 </header>
 
-<div class="container" id="mainDashboard">
-    <div class="tab-content">
-        <div style="display: flex; gap: 10px;">
-            <input type="text" id="svcId" class="form-control" placeholder="رقم الخدمة">
-            <input type="number" id="qtyId" class="form-control" placeholder="الكمية">
+<div class="dashboard" id="main" style="display:none;">
+    
+    <div class="tabs-header">
+        <button class="tab-btn active" id="tab1" onclick="openTab('massTab')">📦 تنسيق الطلبات</button>
+        <button class="tab-btn" id="tab2" onclick="openTab('filterTab')">🔍 استخراج الأرقام</button>
+    </div>
+
+    <div id="massTab" class="tab-content active">
+        <div class="input-group" style="display: flex; gap: 12px;">
+            <div style="flex: 1.2;">
+                <label>رقم الخدمة (Service ID)</label>
+                <input type="text" id="massService" class="form-control" placeholder="101" oninput="saveS()">
+            </div>
+            <div style="flex: 1;" id="massFixedQty">
+                <label>الكمية</label>
+                <input type="number" id="massQty" class="form-control" placeholder="1000">
+            </div>
         </div>
-        <textarea id="linksInput" class="form-control" rows="6" placeholder="ضع الروابط هنا..."></textarea>
-        <button class="btn-main" onclick="runTool()">⚡ تنفيذ (تكلفة 1 نقطة)</button>
-        <textarea id="resultOutput" class="form-control" rows="5" readonly style="margin-top: 15px;" placeholder="النتيجة..."></textarea>
-        <button class="btn-main" style="background:var(--success); margin-top: 10px;" onclick="copyRes()">📋 نسخ</button>
+
+        <div style="margin-bottom: 20px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px;">
+                <input type="checkbox" id="massRandomCheck" onchange="toggleMassQty()"> توزيع عشوائي للكميات (آمن)
+            </label>
+        </div>
+
+        <div id="massRandomGroup" style="display: none; gap: 12px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label>أقل كمية</label>
+                <input type="number" id="massMin" class="form-control" placeholder="50">
+            </div>
+            <div style="flex: 1;">
+                <label>أكبر كمية</label>
+                <input type="number" id="massMax" class="form-control" placeholder="200">
+            </div>
+        </div>
+
+        <label>روابط الطلبات</label>
+        <textarea id="massLinks" class="form-control" rows="6" placeholder="الصق الروابط هنا..." oninput="detectPlatforms()"></textarea>
+        
+        <div class="smart-info">
+            <span id="linkCounterLabel">الروابط: 0</span>
+            <span id="platformDetect">المنصة: لم يتم التحديد</span>
+        </div>
+
+        <button class="btn-main" onclick="runMassFormatter()">🚀 إنشاء الطلبات الجماعية</button>
+        <div id="massStatsBox" class="stats-box"><p id="massStats"></p></div>
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="التنسيق الجاهز..."></textarea>
+
+        <div class="action-btns">
+            <button class="btn-success" onclick="copyAndRedirect('massResult')">📋 نسخ والذهاب للموقع</button>
+            <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
+        </div>
+    </div>
+
+    <div id="filterTab" class="tab-content">
+        <div class="mode-selector">
+            <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
+            <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 من صورة</button>
+        </div>
+
+        <div id="filterImageSection" style="display: none;">
+            <div class="drop-box" id="filterDropZone">
+                <strong>📸 اسحب الصورة أو اضغط</strong>
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 10px;">أو الصق Ctrl+V</p>
+                <input type="file" id="filterImgInput" accept="image/*" style="display:none">
+            </div>
+            <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;">⏳ جاري التحليل...</div>
+        </div>
+
+        <label>النص المراد تنظيفه:</label>
+        <textarea id="filterInput" class="form-control" rows="6" placeholder="الصق النص هنا..."></textarea>
+
+        <div style="display: flex; gap: 12px;">
+            <div style="flex: 1;">
+                <label>تصفية حسب</label>
+                <select id="filterType" class="form-control">
+                    <option value="id">رقم الطلب (5 أرقام فأكثر)</option>
+                    <option value="all">كل الأرقام</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>الفاصل</label>
+                <select id="filterSep" class="form-control">
+                    <option value="&#10;">سطر جديد</option>
+                    <option value=",">فاصلة (,)</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام الصافية</button>
+        <div id="filterStatsBox" class="stats-box"><p id="filterStats"></p></div>
+        <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
+
+        <div class="action-btns">
+            <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button>
+            <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
+        </div>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<a href="https://wa.me/201159017393" class="whatsapp-float" target="_blank">
+    <span>تواصل مع الدعم الفني</span>
+    📞
+</a>
+
+<footer>
+    <p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p>
+</footer>
+
+<div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
-    // إعدادات Firebase الخاصة بك
-    const firebaseConfig = {
-        apiKey: "AIzaSyAHpvaYETnzzjmT9VsM96vhhXd3uBaRE70",
-        authDomain: "smmxhero-tools.firebaseapp.com",
-        projectId: "smmxhero-tools",
-        storageBucket: "smmxhero-tools.firebasestorage.app",
-        messagingSenderId: "804221596907",
-        appId: "1:804221596907:web:7cbe55a26d0544fd5cbaae"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    let currentUserData = null;
-
-    function handleAuth(type) {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        if(!email || !pass) return alert("أكمل البيانات");
-
-        if(type === 'register') {
-            auth.createUserWithEmailAndPassword(email, pass).then(cred => {
-                return db.collection('users').doc(cred.user.uid).set({ points: 5 });
-            }).catch(err => alert(err.message));
-        } else {
-            auth.signInWithEmailAndPassword(email, pass).catch(err => alert("خطأ في الدخول"));
-        }
+// --- إدارة الإضاءة ---
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById("themeBtn");
+    body.classList.toggle("light-mode");
+    
+    if(body.classList.contains("light-mode")) {
+        btn.innerText = "☀️ الوضع النهاري";
+        localStorage.setItem("theme", "light");
+    } else {
+        btn.innerText = "🌙 الوضع الليلي";
+        localStorage.setItem("theme", "dark");
     }
+}
 
-    auth.onAuthStateChanged(user => {
-        if(user) {
-            document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('mainHeader').style.display = 'flex';
-            document.getElementById('mainDashboard').style.display = 'block';
-            db.collection('users').doc(user.uid).onSnapshot(doc => {
-                currentUserData = doc.data();
-                document.getElementById('pointsBalance').innerText = currentUserData.points;
-            });
-        } else {
-            document.getElementById('authOverlay').style.display = 'flex';
-            document.getElementById('mainHeader').style.display = 'none';
-            document.getElementById('mainDashboard').style.display = 'none';
+// تحميل الإعدادات عند الفتح
+window.onload = () => {
+    if(localStorage.getItem("theme") === "light") toggleTheme();
+    document.getElementById("massService").value = localStorage.getItem('svc') || "";
+    setTimeout(() => { 
+        document.getElementById("loader").style.opacity = "0"; 
+        setTimeout(() => document.getElementById("loader").style.display = "none", 500);
+        document.getElementById("main").style.display = "block"; 
+    }, 600); 
+};
+
+// --- الدوال الأساسية الأخرى ---
+function openTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function saveS() { localStorage.setItem('svc', document.getElementById("massService").value); }
+
+function detectPlatforms() {
+    const text = document.getElementById("massLinks").value.toLowerCase();
+    const count = text.split('\n').filter(l => l.trim() !== "").length;
+    document.getElementById("linkCounterLabel").innerText = `الروابط: ${count}`;
+    const p = document.getElementById("platformDetect");
+    if (text.includes("instagram")) p.innerText = "المنصة: Instagram 📸";
+    else if (text.includes("tiktok")) p.innerText = "المنصة: TikTok 🎵";
+    else if (text.includes("facebook")) p.innerText = "المنصة: Facebook 💙";
+    else if (text.includes("youtube")) p.innerText = "المنصة: YouTube 🔴";
+    else p.innerText = count > 0 ? "المنصة: متنوعة" : "المنصة: لم يتم التحديد";
+}
+
+function toggleMassQty() {
+    const isRnd = document.getElementById("massRandomCheck").checked;
+    document.getElementById("massFixedQty").style.opacity = isRnd ? "0.3" : "1";
+    document.getElementById("massRandomGroup").style.display = isRnd ? "flex" : "none";
+}
+
+function runMassFormatter() {
+    const svc = document.getElementById("massService").value.trim();
+    const links = document.getElementById("massLinks").value.split('\n');
+    const isRnd = document.getElementById("massRandomCheck").checked;
+    const qty = document.getElementById("massQty").value;
+    const min = parseInt(document.getElementById("massMin").value);
+    const max = parseInt(document.getElementById("massMax").value);
+    if(!svc) { showToast("⚠️ أدخل رقم الخدمة"); return; }
+    let res = ""; let c = 0;
+    links.forEach(l => {
+        const url = l.trim().match(/(https?:\/\/[^\s]+)/i);
+        if(url) {
+            const finalQty = isRnd ? Math.floor(Math.random()*(max-min+1))+min : qty;
+            res += `${svc} | ${url[0]} | ${finalQty}\n`; c++;
         }
     });
+    document.getElementById("massResult").value = res.trim();
+    document.getElementById("massStatsBox").style.display = "block";
+    document.getElementById("massStats").innerText = `✨ تم تنسيق ${c} طلب بنجاح!`;
+}
 
-    async function runTool() {
-        if(!currentUserData || currentUserData.points < 1) return alert("نقاطك انتهت!");
-        const sid = document.getElementById('svcId').value;
-        const qty = document.getElementById('qtyId').value;
-        const links = document.getElementById('linksInput').value.trim();
-        if(!sid || !qty || !links) return alert("أكمل البيانات");
+async function copyAndRedirect(id) {
+    const val = document.getElementById(id).value;
+    if(!val) return;
+    await navigator.clipboard.writeText(val);
+    showToast("📋 تم النسخ! جارٍ التوجيه...");
+    setTimeout(() => { window.open("https://smmxhero.com/orders", "_blank"); }, 1200);
+}
 
-        await db.collection('users').doc(auth.currentUser.uid).update({ points: currentUserData.points - 1 });
+function switchFilterMode(mode) {
+    const isImg = mode === 'image';
+    document.getElementById("filterImageSection").style.display = isImg ? "block" : "none";
+    document.getElementById("btnManual").classList.toggle("active", !isImg);
+    document.getElementById("btnImage").classList.toggle("active", isImg);
+}
 
-        let res = "";
-        links.split('\n').forEach(l => { if(l.trim()) res += `${sid} | ${l.trim()} | ${qty}\n`; });
-        document.getElementById('resultOutput').value = res.trim();
-        showToast("تم الخصم والتنسيق ✅");
+const fDrop = document.getElementById("filterDropZone");
+const fImg = document.getElementById("filterImgInput");
+fDrop.onclick = () => fImg.click();
+fImg.onchange = (e) => handleOcr(e.target.files[0]);
+fDrop.ondragover = (e) => { e.preventDefault(); fDrop.classList.add('dragover'); };
+fDrop.ondragleave = () => fDrop.classList.remove('dragover');
+fDrop.ondrop = (e) => { e.preventDefault(); fDrop.classList.remove('dragover'); handleOcr(e.dataTransfer.files[0]); };
+
+document.addEventListener('paste', e => {
+    if(document.getElementById("btnImage").classList.contains("active")) {
+        const item = e.clipboardData.items[0];
+        if(item && item.type.includes('image')) handleOcr(item.getAsFile());
     }
+});
 
-    function logout() { auth.signOut(); }
-    function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
-    function copyRes() { const o = document.getElementById('resultOutput'); o.select(); document.execCommand('copy'); showToast("تم النسخ ✅"); }
+async function handleOcr(file) {
+    if(!file) return;
+    const st = document.getElementById("filterOcrStatus");
+    st.style.display = "block";
+    try {
+        const r = await Tesseract.recognize(file, 'eng');
+        document.getElementById("filterInput").value = r.data.text;
+        st.innerText = "✅ اكتمل الفحص!";
+        setTimeout(() => st.style.display="none", 2000);
+    } catch(e) { showToast("❌ فشل التحليل"); st.style.display="none"; }
+}
+
+function runFilter() {
+    const input = document.getElementById("filterInput").value;
+    const type = document.getElementById("filterType").value;
+    const sep = document.getElementById("filterSep").value;
+    let nums = input.match(/\d+/g);
+    if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
+    let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
+    let unique = [...new Set(filtered)];
+    document.getElementById("filterResult").value = unique.join(sep);
+    document.getElementById("filterStatsBox").style.display = "block";
+    document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم.`;
+}
+
+async function copyValue(id) {
+    const val = document.getElementById(id).value;
+    if(!val) return;
+    await navigator.clipboard.writeText(val);
+    showToast("📋 تم النسخ!");
+}
+
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg; t.style.display = "block";
+    setTimeout(()=> t.style.display="none", 2500);
+}
+
+function clearMass() {
+    document.getElementById("massLinks").value = "";
+    document.getElementById("massResult").value = "";
+    document.getElementById("massStatsBox").style.display = "none";
+    detectPlatforms();
+}
+
+function clearFilter() {
+    document.getElementById("filterInput").value = "";
+    document.getElementById("filterResult").value = "";
+    document.getElementById("filterStatsBox").style.display = "none";
+}
 </script>
 </body>
 </html>
