@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMMXHERO | Dashboard</title>
+<title>SMMXHERO | Ultra Dashboard</title>
 <link rel="icon" href="logo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -27,18 +27,17 @@
     #loader img { width: 80px; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } }
 
-    /* شريط العنوان العلوي */
     header { width: 100%; background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: center; align-items: center; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
     .logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .logo-area img { width: 35px; height: 35px; border-radius: 5px; }
-    .logo-area span { color: #fff; font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+    .logo-area span { color: #fff; font-size: 20px; font-weight: 800; }
     .logo-area span b { color: var(--primary); }
 
-    .dashboard { width: 100%; max-width: 800px; padding: 0 20px; flex: 1; }
+    .dashboard { width: 100%; max-width: 800px; padding: 0 20px; flex: 1; animation: slideUp 0.5s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* التبويبات */
     .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border); }
-    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-weight: 700; transition: 0.3s; }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-weight: 700; transition: 0.3s; font-size: 14px; }
     .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3); }
 
     .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 40px; }
@@ -46,33 +45,35 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-dim); }
-    .form-control { width: 100%; margin-bottom: 15px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: #141517; color: #fff; font-size: 14px; outline: none; }
-    .form-control:focus { border-color: var(--primary); }
+    .form-control { width: 100%; margin-bottom: 15px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: #141517; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); }
 
     .btn-main { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; }
     .btn-main:hover { filter: brightness(1.2); transform: translateY(-2px); }
+    .btn-main:active { transform: translateY(0); }
 
     .live-counter { display: flex; justify-content: space-between; margin-top: -10px; margin-bottom: 15px; font-size: 12px; font-weight: 600; }
     #linkCounterLabel.has-links { color: var(--success); }
     #linkCounterLabel.no-links { color: var(--danger); }
 
     .mode-selector { display: flex; background: #141517; padding: 5px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
-    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 700; }
+    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 700; transition: 0.2s; }
     .m-btn.active { background: var(--border); color: white; }
 
-    .drop-box { background: rgba(13, 110, 253, 0.03); border: 2px dashed var(--border); padding: 40px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; cursor: pointer; }
-    .drop-box:hover, .drop-box.dragover { border-color: var(--primary); }
+    .drop-box { background: rgba(13, 110, 253, 0.03); border: 2px dashed var(--border); padding: 40px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
+    .drop-box:hover, .drop-box.dragover { border-color: var(--primary); background: rgba(13, 110, 253, 0.08); }
 
     .stats { text-align: center; color: var(--success); font-size: 14px; font-weight: 700; margin: 15px 0; min-height: 22px; }
     .action-btns { display: flex; gap: 12px; margin-top: 10px; }
-    .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; }
-    .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; }
+    .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; }
+    .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; }
+    .btn-success:hover, .btn-danger:hover { opacity: 0.9; transform: translateY(-2px); }
 
-    /* فوتر حقوق النشر */
     footer { width: 100%; background: transparent; padding: 20px; text-align: center; color: var(--text-dim); font-size: 13px; border-top: 1px solid var(--border); margin-top: auto; }
     footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
 
-    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 14px; font-weight: 600; border: 1px solid var(--success); }
+    /* تنبيهات الـ Toast المحسنة */
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 14px; font-weight: 600; border: 1px solid var(--success); animation: fadeIn 0.3s ease; }
 </style>
 </head>
 <body>
@@ -94,11 +95,11 @@
     </div>
 
     <div id="massTab" class="tab-content active">
-        <div style="text-align:center; margin-bottom:20px; color:var(--text-main); font-weight:700;">مُنسّق الطلبات الجماعية الذكي</div>
+        <div style="text-align:center; margin-bottom:20px; color:var(--text-main); font-weight:700;">مُنسّق الطلبات الجماعية الذكي (URL Cleanup)</div>
         
         <div style="display: flex; gap: 12px;">
             <div style="flex: 1.2;">
-                <label>رقم الخدمة (Service ID)</label>
+                <label>رقم الخدمة (ID)</label>
                 <input type="text" id="massService" class="form-control" placeholder="101">
             </div>
             <div style="flex: 1;" id="massFixedQty">
@@ -114,7 +115,7 @@
             </label>
         </div>
 
-        <div id="massRandomGroup" style="display: none; gap: 12px; margin-bottom: 15px;">
+        <div id="massRandomGroup" style="display: none; gap: 12px; margin-bottom: 15px; animation: fadeIn 0.3s;">
             <div style="flex: 1;">
                 <label>الحد الأدنى</label>
                 <input type="number" id="massMin" class="form-control" placeholder="50">
@@ -125,11 +126,12 @@
             </div>
         </div>
 
-        <label>روابط الطلبات</label>
-        <textarea id="massLinks" class="form-control" rows="6" placeholder="الصق الروابط هنا..."></textarea>
+        <label>روابط الطلبات (واحد لكل سطر)</label>
+        <textarea id="massLinks" class="form-control" rows="6" placeholder="https://..."></textarea>
         
         <div class="live-counter">
             <span id="linkCounterLabel" class="no-links">عدد الروابط: 0</span>
+            <span style="color: var(--text-dim)">سيتم تنظيف وفلترة الروابط تلقائياً</span>
         </div>
 
         <button class="btn-main" onclick="runMassFormatter()">🚀 توليد التنسيق النهائي</button>
@@ -138,7 +140,7 @@
 
         <div class="action-btns">
             <button class="btn-success" onclick="copyValue('massResult')">📋 نسخ الطلبات</button>
-            <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
+            <button class="btn-danger" onclick="clearMass()">🗑️ مسح الكل</button>
         </div>
     </div>
 
@@ -153,6 +155,7 @@
         <div id="filterImageSection" style="display: none;">
             <div class="drop-box" id="filterDropZone">
                 <strong>📸 اسحب سكرين شوت هنا</strong>
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">يدعم اللصق المباشر Ctrl + V</p>
                 <input type="file" id="filterImgInput" accept="image/*" style="display:none">
             </div>
             <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;">⏳ جاري المعالجة...</div>
@@ -179,10 +182,10 @@
 
         <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام</button>
         <div id="filterStats" class="stats"></div>
-        <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
+        <textarea id="filterResult" class="form-control" rows="5" readonly placeholder="الأرقام المصفاة ستظهر هنا..."></textarea>
 
         <div class="action-btns">
-            <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button>
+            <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ النتائج</button>
             <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
         </div>
     </div>
@@ -190,13 +193,28 @@
 
 <footer>
     <p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p>
-    <p style="margin-top: 5px; opacity: 0.6; font-size: 11px;">تم التطوير لتقديم أفضل تجربة إدارة طلبات SMM</p>
 </footer>
 
-<div class="toast" id="toast">تم النسخ ✅</div>
+<div class="toast" id="toast">تم النسخ بنجاح ✅</div>
 
 <script>
-// --- المنطق البرمجي (بقاء نفس الدوال السابقة مع تحسين طفيف) ---
+// --- إعدادات الحفظ التلقائي (Auto-Save) ---
+function saveData() {
+    localStorage.setItem('smm_service', document.getElementById('massService').value);
+    localStorage.setItem('smm_qty', document.getElementById('massQty').value);
+    localStorage.setItem('smm_rnd', document.getElementById('massRandomCheck').checked);
+}
+
+function loadData() {
+    if(localStorage.getItem('smm_service')) document.getElementById('massService').value = localStorage.getItem('smm_service');
+    if(localStorage.getItem('smm_qty')) document.getElementById('massQty').value = localStorage.getItem('smm_qty');
+    if(localStorage.getItem('smm_rnd') === 'true') {
+        document.getElementById('massRandomCheck').checked = true;
+        toggleMassQty();
+    }
+}
+
+// --- إدارة التبويبات ---
 function openTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -205,6 +223,7 @@ function openTab(id) {
 }
 
 window.onload = () => {
+    loadData(); // تحميل البيانات المحفوظة
     setTimeout(() => { 
         document.getElementById("loader").style.opacity = "0"; 
         setTimeout(() => document.getElementById("loader").style.display = "none", 500);
@@ -212,8 +231,11 @@ window.onload = () => {
     }, 600); 
 };
 
+// --- أداة الطلبات الجماعية ---
 document.getElementById("massLinks").addEventListener("input", function() {
-    const count = this.value.trim() ? this.value.trim().split('\n').filter(l => l.trim() !== "").length : 0;
+    const text = this.value.trim();
+    // عداد ذكي لا يحسب الأسطر الفارغة
+    const count = text ? text.split('\n').filter(l => l.trim() !== "").length : 0;
     const label = document.getElementById("linkCounterLabel");
     label.innerText = `عدد الروابط: ${count}`;
     label.className = count > 0 ? "has-links" : "no-links";
@@ -224,6 +246,7 @@ function toggleMassQty() {
     document.getElementById("massFixedQty").style.opacity = isRnd ? "0.3" : "1";
     document.getElementById("massFixedQty").style.pointerEvents = isRnd ? "none" : "all";
     document.getElementById("massRandomGroup").style.display = isRnd ? "flex" : "none";
+    saveData();
 }
 
 function runMassFormatter() {
@@ -234,25 +257,42 @@ function runMassFormatter() {
     const min = parseInt(document.getElementById("massMin").value);
     const max = parseInt(document.getElementById("massMax").value);
 
-    if(!service) { showToast("⚠️ أدخل رقم الخدمة"); return; }
+    if(!service) { showToast("⚠️ أدخل رقم الخدمة أولاً"); return; }
+    saveData();
     
     let res = "";
     let validCount = 0;
     let seen = new Set();
 
     links.forEach(line => {
-        const urlMatch = line.match(/(https?:\/\/[^\s]+)/i);
-        if(urlMatch && !seen.has(urlMatch[0])) {
-            seen.add(urlMatch[0]);
-            const finalQty = isRnd ? Math.floor(Math.random()*(max-min+1))+min : qty;
-            res += `${service} | ${urlMatch[0]} | ${finalQty}\n`;
-            validCount++;
+        // فلترة النصوص وإزالة المسافات
+        let cleanedLine = line.trim().replace(/\s/g, '');
+        const urlMatch = cleanedLine.match(/(https?:\/\/[^\s]+)/i);
+        
+        if(urlMatch) {
+            let cleanUrl = urlMatch[0];
+            // تنظيف الرابط من علامات التتبع (Cleanup tracking params)
+            if (cleanUrl.includes('?')) {
+                cleanUrl = cleanUrl.split('?')[0];
+            }
+            // إزالة علامة / في نهاية الرابط إذا وجدت
+            if (cleanUrl.endsWith('/')) {
+                cleanUrl = cleanUrl.slice(0, -1);
+            }
+
+            if(!seen.has(cleanUrl)) {
+                seen.add(cleanUrl);
+                const finalQty = isRnd ? Math.floor(Math.random()*(max-min+1))+min : qty;
+                res += `${service} | ${cleanUrl} | ${finalQty}\n`;
+                validCount++;
+            }
         }
     });
     document.getElementById("massResult").value = res.trim();
-    document.getElementById("massStats").innerText = `✅ تم معالجة ${validCount} رابط.`;
+    document.getElementById("massStats").innerText = `✅ تم معالجة وتنسيق ${validCount} رابط بنجاح.`;
 }
 
+// --- أداة الفلتر ---
 function switchFilterMode(mode) {
     const isImg = (mode === 'image');
     document.getElementById("filterImageSection").style.display = isImg ? "block" : "none";
@@ -283,23 +323,28 @@ async function handleOcr(file) {
     try {
         const r = await Tesseract.recognize(file, 'eng');
         document.getElementById("filterInput").value = r.data.text;
-        st.innerText = "✅ تم القراءة!";
+        st.innerText = "✅ تم القراءة بنجاح!";
         setTimeout(()=> st.style.display="none", 2000);
-    } catch(e) { showToast("❌ خطأ في الصورة"); st.style.display="none"; }
+    } catch(e) { showToast("❌ فشل في تحليل الصورة"); st.style.display="none"; }
 }
 
 function runFilter() {
     const input = document.getElementById("filterInput").value;
     const type = document.getElementById("filterType").value;
     const sep = document.getElementById("filterSep").value;
+    
+    // استخراج الأرقام فقط وتجاهل الرموز
     let nums = input.match(/\d+/g);
     if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
+    
     let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
-    let unique = [...new Set(filtered)];
+    let unique = [...new Set(filtered)]; // إزالة التكرار
+    
     document.getElementById("filterResult").value = unique.join(sep);
-    document.getElementById("filterStats").innerText = `✅ تم تصفية ${unique.length} رقم.`;
+    document.getElementById("filterStats").innerText = `🎯 تم تصفية ${unique.length} رقم.`;
 }
 
+// --- وظائف عامة ---
 async function copyValue(id) {
     const v = document.getElementById(id).value;
     if(!v) return;
@@ -311,7 +356,7 @@ function showToast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg;
     t.style.display = "block";
-    setTimeout(()=> t.style.display="none", 2000);
+    setTimeout(()=> t.style.display="none", 2500);
 }
 
 function clearMass() {
@@ -319,12 +364,14 @@ function clearMass() {
     document.getElementById("massResult").value = "";
     document.getElementById("massStats").innerText = "";
     document.getElementById("linkCounterLabel").innerText = "عدد الروابط: 0";
+    showToast("🗑️ تم المسح");
 }
 
 function clearFilter() {
     document.getElementById("filterInput").value = "";
     document.getElementById("filterResult").value = "";
     document.getElementById("filterStats").innerText = "";
+    showToast("🗑️ تم المسح");
 }
 </script>
 </body>
