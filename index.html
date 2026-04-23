@@ -4,226 +4,287 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SMMXHERO | Smart OCR Tool</title>
+<title>SMMXHERO | All-in-One Tool</title>
 
 <link rel="icon" href="logo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-body { background: #1a1b1e; color: #e5e7eb; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    :root {
+        --primary: #0d6efd;
+        --success: #198754;
+        --danger: #dc3545;
+        --bg-dark: #1a1b1e;
+        --card-bg: #25262b;
+        --border: #373a40;
+        --text-main: #e5e7eb;
+        --text-dim: #909296;
+    }
 
-#loader { position: fixed; width: 100%; height: 100%; background: #1a1b1e; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-#loader img { width: 80px; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.6; } }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
 
-.container { width: 100%; max-width: 600px; background: #25262b; padding: 30px; border-radius: 8px; border: 1px solid #373a40; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.brand { text-align: center; color: #e5e7eb; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
+    #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    #loader img { width: 80px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } }
 
-/* تم تحسين تصميم منطقة الرفع والسحب */
-.ocr-section { 
-    background: rgba(13, 110, 253, 0.05); 
-    border: 2px dashed #373a40; 
-    padding: 30px 15px; 
-    border-radius: 8px; 
-    text-align: center; 
-    margin-bottom: 15px; 
-    cursor: pointer; 
-    transition: all 0.3s ease; 
-}
+    .dashboard { width: 100%; max-width: 800px; }
 
-.ocr-section.dragover { 
-    background: rgba(13, 110, 253, 0.2); 
-    border-color: #0d6efd; 
-    transform: scale(1.02);
-}
+    /* التبويبات Tabs */
+    .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 8px; font-weight: 600; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .tab-btn.active { background: var(--primary); color: white; }
+    .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); }
 
-.ocr-section strong { color: #e5e7eb; display: block; margin-bottom: 5px; }
-.ocr-section p { font-size: 13px; color: #909296; }
+    .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 0.4s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
-.form-control { width: 100%; margin-bottom: 15px; padding: 12px 15px; border-radius: 6px; border: 1px solid #373a40; background: #141517; color: #c1c2c5; font-size: 14px; outline: none; }
+    .brand-title { text-align: center; margin-bottom: 25px; font-size: 22px; font-weight: 700; color: var(--text-main); }
 
-#status { font-size: 12px; color: #facc15; margin-bottom: 10px; display: none; text-align: center;}
-.stats-text { text-align: center; color: #12b886; font-size: 14px; font-weight: 600; margin: 10px 0; }
+    /* العناصر المشتركة */
+    label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-dim); }
+    .form-control { width: 100%; margin-bottom: 15px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: #141517; color: #c1c2c5; font-size: 14px; outline: none; transition: 0.2s; }
+    .form-control:focus { border-color: var(--primary); }
+    .input-group { display: flex; gap: 15px; width: 100%; }
+    button { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    
+    .btn-main { background: var(--primary); color: white; margin-bottom: 15px; }
+    .btn-main:hover { background: #0b5ed7; }
+    
+    .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
 
-.btn-primary { width: 100%; padding: 12px; border: none; background: #0d6efd; color: white; font-weight: 600; border-radius: 6px; cursor: pointer; margin-bottom: 10px; }
-.btn-primary:hover { background: #0b5ed7; }
+    /* قسم OCR */
+    .ocr-drop-zone { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 30px; border-radius: 10px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+    .ocr-drop-zone.dragover { border-color: var(--primary); background: rgba(13, 110, 253, 0.15); }
+    
+    #status { font-size: 13px; color: #facc15; text-align: center; margin-bottom: 10px; display: none; }
+    .stats-text { text-align: center; color: var(--success); font-size: 14px; font-weight: 600; margin: 15px 0; }
 
-.action-buttons { display: flex; gap: 10px; }
-.btn-success { background: #198754; flex: 1; border: none; padding: 12px; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-danger { background: #dc3545; flex: 1; border: none; padding: 12px; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .counter-info { display: flex; justify-content: space-between; margin-top: -10px; margin-bottom: 15px; font-size: 12px; }
 
-.filter-settings { background: #1c1d21; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #373a40; }
-.filter-settings span { font-size: 12px; color: #909296; display: block; margin-bottom: 5px; }
-
-.toast { position: fixed; bottom: 20px; right: 20px; background: #198754; color: white; padding: 10px 20px; border-radius: 6px; display: none; font-size: 14px; z-index: 10001; }
+    .toast { position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 25px; border-radius: 8px; display: none; z-index: 10000; }
 </style>
 </head>
-
 <body>
 
 <div id="loader"><img src="logo.ico" alt="Loading"></div>
 
-<div class="container" id="main" style="display:none;">
-    <div class="brand">SMMXHERO | مُستخرج الأرقام الذكي 📷</div>
-
-    <div class="ocr-section" id="dropZone">
-        <strong>📷 اسحب الصورة هنا أو اضغط للاختيار</strong>
-        <p>يدعم اللصق المباشر Ctrl + V</p>
-        <input type="file" id="imageInput" accept="image/*" style="display:none">
+<div class="dashboard" id="main" style="display:none;">
+    
+    <div class="tabs-header">
+        <button class="tab-btn active" onclick="openTab('massOrder')">📝 الطلبات الجماعية</button>
+        <button class="tab-btn" onclick="openTab('ocrTool')">📷 استخراج من الصور</button>
     </div>
 
-    <div id="status">⏳ جاري تحليل الصورة...</div>
+    <div id="massOrder" class="tab-content active">
+        <div class="brand-title">SMMXHERO | مُنسّق الطلبات الجماعية</div>
+        
+        <div class="input-group">
+            <div style="flex: 1;">
+                <label>رقم الخدمة (Service ID)</label>
+                <input type="text" id="service" class="form-control" placeholder="مثال: 101">
+            </div>
+            <div style="flex: 1;" id="fixedQtyGroup">
+                <label>الكمية (Quantity)</label>
+                <input type="number" id="quantity" class="form-control" placeholder="مثال: 1000">
+            </div>
+        </div>
 
-    <div class="filter-settings">
-        <span>⚙️ إعدادات الفلترة:</span>
-        <label style="display: inline-flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer;">
-            <input type="checkbox" id="idLengthFilter" checked style="width:15px; height:15px;"> استخراج الأرقام الطويلة فقط (Order ID)
-        </label>
+        <div style="margin-bottom: 15px;">
+            <label style="cursor:pointer; display: flex; align-items:center; gap:8px; font-size: 13px;">
+                <input type="checkbox" id="randomToggle" onchange="toggleRandomMode()"> توزيع عشوائي (تجنب الحظر)
+            </label>
+        </div>
+
+        <div id="randomQtyGroup" class="input-group" style="display:none;">
+            <div style="flex: 1;">
+                <label>أقل كمية</label>
+                <input type="number" id="minQty" class="form-control" placeholder="50">
+            </div>
+            <div style="flex: 1;">
+                <label>أكبر كمية</label>
+                <input type="number" id="maxQty" class="form-control" placeholder="150">
+            </div>
+        </div>
+
+        <label>روابط الطلبات</label>
+        <textarea id="links" class="form-control" rows="5" placeholder="ضع الروابط هنا..."></textarea>
+        <div class="counter-info">
+            <span id="linkCount" style="color: var(--success); font-weight: bold;">الروابط: 0</span>
+            <span>رابط واحد في كل سطر</span>
+        </div>
+
+        <button class="btn-main" onclick="generateMass()">⚡ توليد الطلبات</button>
+        
+        <div id="massStats" class="stats-text"></div>
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="النتيجة جاهزة للنسخ..."></textarea>
+
+        <div class="action-buttons">
+            <button class="btn-success" onclick="copyText('massResult')">📋 نسخ</button>
+            <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
+        </div>
     </div>
 
-    <label>النص المستخرج</label>
-    <textarea id="input" class="form-control" rows="4" placeholder="سيظهر النص هنا..."></textarea>
+    <div id="ocrTool" class="tab-content">
+        <div class="brand-title">SMMXHERO | استخراج الأرقام من الصور</div>
 
-    <label>الفاصل المطلوب</label>
-    <select id="separator" class="form-control">
-        <option value=",">فاصلة ( , )</option>
-        <option value="&#10;">سطر جديد</option>
-    </select>
+        <div class="ocr-drop-zone" id="dropZone">
+            <strong>📷 اسحب الصورة هنا أو اضغط للاختيار</strong>
+            <p>يدعم اللصق المباشر Ctrl + V من الشاشة</p>
+            <input type="file" id="imageInput" accept="image/*" style="display:none">
+        </div>
 
-    <button class="btn-primary" onclick="convert()">⚡ تنظيف واستخراج يدوي</button>
+        <div id="status">⏳ جاري معالجة الصورة...</div>
 
-    <div id="stats" class="stats-text"></div>
+        <div style="background: #1c1d21; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+            <label style="cursor:pointer; display: flex; align-items:center; gap:8px; font-size: 12px;">
+                <input type="checkbox" id="idFilter" checked> استخراج أرقام الـ ID فقط (5 خانات+)
+            </label>
+        </div>
 
-    <label>أرقام الطلبات المفلترة</label>
-    <textarea id="result" class="form-control" rows="5" readonly placeholder="النتائج ستظهر هنا..."></textarea>
+        <label>النص الخام المستخرج</label>
+        <textarea id="ocrInput" class="form-control" rows="3"></textarea>
 
-    <div class="action-buttons">
-        <button class="btn-success" onclick="copy()">📋 نسخ النتيجة</button>
-        <button class="btn-danger" onclick="clearAll()">🗑️ مسح</button>
+        <button class="btn-main" onclick="convertOCR()">⚙️ تنظيف وتصفية الأرقام</button>
+        
+        <div id="ocrStats" class="stats-text"></div>
+        <textarea id="ocrResult" class="form-control" rows="4" readonly placeholder="أرقام الطلبات الصافية..."></textarea>
+
+        <div class="action-buttons">
+            <button class="btn-success" onclick="copyText('ocrResult')">📋 نسخ</button>
+            <button class="btn-danger" onclick="clearOCR()">🗑️ مسح</button>
+        </div>
     </div>
+
 </div>
 
-<div class="toast" id="toast">تم النسخ ✅</div>
+<div class="toast" id="toast">تم النسخ بنجاح ✅</div>
 
 <script>
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('imageInput');
+// --- إدارة التبويبات ---
+function openTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
 
 window.onload = () => {
     setTimeout(() => {
         document.getElementById("loader").style.display = "none";
         document.getElementById("main").style.display = "block";
-    }, 500);
+    }, 600);
 };
 
-// --- ميزة السحب والإدراج (Drag & Drop) ---
-
-// منع السلوك الافتراضي للمتصفح عند سحب الملفات
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, e => {
-        e.preventDefault();
-        e.stopPropagation();
-    }, false);
+// --- منطق الطلبات الجماعية ---
+const linksInp = document.getElementById("links");
+linksInp.addEventListener("input", () => {
+    const lines = linksInp.value.trim().split('\n').filter(l => l.trim() !== "");
+    document.getElementById("linkCount").innerText = `الروابط: ${lines.length}`;
 });
 
-// إضافة تأثير بصري عند السحب فوق المربع
-['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => {
-        dropZone.classList.add('dragover');
-    }, false);
-});
+function toggleRandomMode() {
+    const isRnd = document.getElementById("randomToggle").checked;
+    document.getElementById("fixedQtyGroup").style.display = isRnd ? "none" : "block";
+    document.getElementById("randomQtyGroup").style.display = isRnd ? "flex" : "none";
+}
 
-['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => {
-        dropZone.classList.remove('dragover');
-    }, false);
-});
+function generateMass() {
+    const service = document.getElementById("service").value.replace(/\D/g, "");
+    const links = linksInp.value.split('\n');
+    const isRnd = document.getElementById("randomToggle").checked;
+    const qty = document.getElementById("quantity").value;
+    const min = parseInt(document.getElementById("minQty").value);
+    const max = parseInt(document.getElementById("maxQty").value);
 
-// معالجة الملف عند إلقائه (Drop)
-dropZone.addEventListener('drop', e => {
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        performOCR(file);
-    }
-});
+    if(!service || (!isRnd && !qty)) { alert("أكمل البيانات أولاً"); return; }
 
-// تشغيل اختيار الملف عند الضغط على المربع
-dropZone.addEventListener('click', () => fileInput.click());
+    let res = "";
+    let count = 0;
+    let seen = new Set();
 
-fileInput.addEventListener('change', function() {
-    if (this.files[0]) performOCR(this.files[0]);
-});
-
-// --- ميزة اللصق (Paste) ---
-document.addEventListener('paste', e => {
-    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-    for (let item of items) {
-        if (item.kind === 'file' && item.type.startsWith('image/')) {
-            performOCR(item.getAsFile());
+    links.forEach(l => {
+        const match = l.match(/(https?:\/\/[^\s]+)/i);
+        if(match && !seen.has(match[0])) {
+            seen.add(match[0]);
+            let finalQty = isRnd ? Math.floor(Math.random()*(max-min+1))+min : qty;
+            res += `${service} | ${match[0]} | ${finalQty}\n`;
+            count++;
         }
-    }
+    });
+
+    document.getElementById("massResult").value = res.trim();
+    document.getElementById("massStats").innerText = `✅ تم تجهيز ${count} طلب بنجاح.`;
+}
+
+// --- منطق OCR ---
+const dropZone = document.getElementById('dropZone');
+const imgInp = document.getElementById('imageInput');
+
+dropZone.onclick = () => imgInp.click();
+imgInp.onchange = (e) => handleImg(e.target.files[0]);
+
+// السحب والإفلات
+dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+dropZone.ondrop = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleImg(e.dataTransfer.files[0]); };
+
+// اللصق
+document.addEventListener('paste', e => {
+    const item = e.clipboardData.items[0];
+    if(item && item.type.includes('image')) handleImg(item.getAsFile());
 });
 
-// --- معالجة OCR ---
-async function performOCR(file) {
+async function handleImg(file) {
+    if(!file) return;
     const status = document.getElementById("status");
-    const inputArea = document.getElementById("input");
-    
     status.style.display = "block";
-    status.innerText = "⏳ جاري القراءة ذكياً...";
-    inputArea.value = "";
-
     try {
-        const result = await Tesseract.recognize(file, 'eng');
-        inputArea.value = result.data.text; 
-        status.innerText = "✅ تم التحليل!";
-        convert(); // تشغيل الفلترة تلقائياً
-        setTimeout(() => status.style.display = "none", 3000);
-    } catch (e) {
-        alert("فشل في قراءة الصورة.");
-        status.style.display = "none";
-    }
+        const res = await Tesseract.recognize(file, 'eng');
+        document.getElementById("ocrInput").value = res.data.text;
+        status.innerText = "✅ اكتمل التحليل!";
+        convertOCR();
+        setTimeout(()=> status.style.display="none", 2000);
+    } catch(e) { alert("خطأ في قراءة الصورة"); status.style.display="none"; }
 }
 
-function convert() {
-    const input = document.getElementById("input").value;
-    const separator = document.getElementById("separator").value;
-    const useLengthFilter = document.getElementById("idLengthFilter").checked;
-    
-    let numbers = input.match(/\d+/g);
-    if (!numbers) return;
-
-    let filteredNumbers = useLengthFilter ? numbers.filter(num => num.length >= 5) : numbers;
-
-    if (filteredNumbers.length === 0) {
-        document.getElementById("stats").innerText = "⚠️ لم نجد أرقام طلبات (5+ أرقام)";
-        return;
-    }
-
-    const uniqueNumbers = [...new Set(filteredNumbers)];
-    document.getElementById("result").value = uniqueNumbers.join(separator);
-    document.getElementById("stats").innerText = `✅ تم استخراج ${uniqueNumbers.length} رقم طلب.`;
+function convertOCR() {
+    const txt = document.getElementById("ocrInput").value;
+    const filter = document.getElementById("idFilter").checked;
+    let nums = txt.match(/\d+/g);
+    if(!nums) return;
+    let filtered = filter ? nums.filter(n => n.length >= 5) : nums;
+    let unique = [...new Set(filtered)];
+    document.getElementById("ocrResult").value = unique.join(", ");
+    document.getElementById("ocrStats").innerText = `✅ تم استخراج ${unique.length} رقم.`;
 }
 
-async function copy() {
-    const res = document.getElementById("result").value;
-    if (!res) return;
-    await navigator.clipboard.writeText(res);
+// --- وظائف عامة ---
+async function copyText(id) {
+    const val = document.getElementById(id).value;
+    if(!val) return;
+    await navigator.clipboard.writeText(val);
     const t = document.getElementById("toast");
     t.style.display = "block";
-    setTimeout(() => t.style.display = "none", 2000);
+    setTimeout(()=> t.style.display="none", 2000);
 }
 
-function clearAll() {
-    document.getElementById("input").value = "";
-    document.getElementById("result").value = "";
-    document.getElementById("stats").innerText = "";
-    fileInput.value = "";
-    document.getElementById("status").style.display = "none";
+function clearMass() {
+    document.getElementById("service").value = "";
+    document.getElementById("links").value = "";
+    document.getElementById("massResult").value = "";
+    document.getElementById("massStats").innerText = "";
+    document.getElementById("linkCount").innerText = "الروابط: 0";
+}
+
+function clearOCR() {
+    document.getElementById("ocrInput").value = "";
+    document.getElementById("ocrResult").value = "";
+    document.getElementById("ocrStats").innerText = "";
 }
 </script>
 
