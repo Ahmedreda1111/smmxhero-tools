@@ -44,11 +44,33 @@
     
     .btn-main { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--primary); color: white; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
     
-    /* ستايل منطقة الـ OCR كخيار إضافي */
+    /* ستايل اختيار طريقة الإدخال */
+    .input-mode-selector {
+        display: flex;
+        background: #141517;
+        padding: 5px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+    }
+    .mode-btn {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+    .mode-btn.active { background: var(--border); color: var(--text-main); }
+
     .ocr-upload-box { 
         background: rgba(13, 110, 253, 0.05); 
         border: 2px dashed var(--border); 
-        padding: 15px; 
+        padding: 40px 15px; 
         border-radius: 8px; 
         text-align: center; 
         margin-bottom: 15px; 
@@ -56,7 +78,6 @@
         transition: 0.3s;
     }
     .ocr-upload-box.dragover { border-color: var(--primary); background: rgba(13, 110, 253, 0.1); }
-    .ocr-upload-box small { color: var(--primary); display: block; margin-top: 5px; font-weight: 600; }
 
     #status { font-size: 12px; color: #facc15; text-align: center; margin-bottom: 10px; display: none; }
     .stats-text { text-align: center; color: var(--success); font-size: 14px; font-weight: 600; margin: 10px 0; }
@@ -76,28 +97,25 @@
     
     <div class="tabs-header">
         <button class="tab-btn active" onclick="openTab('massOrder')">📦 منسق الطلبات الجماعية</button>
-        <button class="tab-btn" onclick="openTab('filterTool')">🔍 فلتر ومنظف الأرقام</button>
+        <button class="tab-btn" onclick="openTab('filterTool')">🔍 فلتر ومنظف البيانات</button>
     </div>
 
     <div id="massOrder" class="tab-content active">
         <div class="brand-title">SMMXHERO | Mass Order Formatter</div>
-        <div style="display: flex; gap: 10px;">
+        <div class="input-group" style="display: flex; gap:10px;">
             <div style="flex: 1;">
                 <label>رقم الخدمة</label>
                 <input type="text" id="service" class="form-control" placeholder="101">
             </div>
-            <div style="flex: 1;" id="qtyBox">
+            <div style="flex: 1;">
                 <label>الكمية</label>
                 <input type="number" id="quantity" class="form-control" placeholder="1000">
             </div>
         </div>
-        
-        <label>الروابط (رابط في كل سطر)</label>
-        <textarea id="links" class="form-control" rows="6" placeholder="https://..."></textarea>
-        
+        <label>الروابط</label>
+        <textarea id="links" class="form-control" rows="6" placeholder="رابط واحد في كل سطر..."></textarea>
         <button class="btn-main" onclick="generateMass()">⚡ توليد التنسيق النهائي</button>
-        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="النتيجة..."></textarea>
-        
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="النتيجة هنا..."></textarea>
         <div class="action-buttons">
             <button class="btn-success" onclick="copyText('massResult')">📋 نسخ</button>
             <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
@@ -105,43 +123,52 @@
     </div>
 
     <div id="filterTool" class="tab-content">
-        <div class="brand-title">SMMXHERO | أداة استخراج وتصفية الأرقام</div>
+        <div class="brand-title">SMMXHERO | أداة تصفية البيانات</div>
 
-        <div class="ocr-upload-box" id="dropZone">
-            <strong>📷 خيار إضافي: سحب صورة أو لصق (Ctrl+V)</strong>
-            <small>لاستخراج النصوص من سكرين شوت تلقائياً</small>
-            <input type="file" id="imageInput" accept="image/*" style="display:none">
+        <label>اختر طريقة الإدخال:</label>
+        <div class="input-mode-selector">
+            <button class="mode-btn active" id="manualBtn" onclick="setMode('manual')">⌨️ إدخال يدوي</button>
+            <button class="mode-btn" id="imageBtn" onclick="setMode('image')">📷 استخراج من صورة</button>
         </div>
 
-        <div id="status">⏳ جاري القراءة من الصورة...</div>
+        <div id="imageModeArea" style="display: none;">
+            <div class="ocr-upload-box" id="dropZone">
+                <strong>📷 اسحب الصورة هنا أو اضغط للاختيار</strong>
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 5px;">يدعم اللصق المباشر Ctrl + V</p>
+                <input type="file" id="imageInput" accept="image/*" style="display:none">
+            </div>
+            <div id="status">⏳ جاري تحليل الصورة...</div>
+        </div>
 
-        <label>أدخل النص المراد تنظيفه (أو استخرجه من صورة أعلاه)</label>
-        <textarea id="filterInput" class="form-control" rows="4" placeholder="ضع النص الذي يحتوي على أرقام عشوائية، أسعار، وكميات هنا..."></textarea>
+        <div id="manualModeArea">
+            <label id="inputLabel">أدخل النص المراد تنظيفه:</label>
+            <textarea id="filterInput" class="form-control" rows="6" placeholder="ضع النص هنا..."></textarea>
+        </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <div style="flex: 1;">
-                <label>الفاصل النهائي</label>
+                <label>نوع التصفية</label>
+                <select id="filterType" class="form-control">
+                    <option value="id">أرقام الطلبات فقط (5+ خانات)</option>
+                    <option value="all">جميع الأرقام الموجودة</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>الفاصل</label>
                 <select id="separator" class="form-control">
                     <option value=",">فاصلة ( , )</option>
                     <option value="&#10;">سطر جديد</option>
                 </select>
             </div>
-            <div style="flex: 1;">
-                <label>نوع الفلترة</label>
-                <select id="filterType" class="form-control">
-                    <option value="all">كل الأرقام</option>
-                    <option value="id">أرقام الطلبات فقط (5+ خانات)</option>
-                </select>
-            </div>
         </div>
 
-        <button class="btn-main" onclick="processFilter()">⚡ تنظيف واستخراج الأرقام</button>
+        <button class="btn-main" onclick="processFilter()">⚡ تنظيف البيانات المستلمة</button>
         
         <div id="filterStats" class="stats-text"></div>
-        <textarea id="filterResult" class="form-control" rows="5" readonly placeholder="الأرقام المصفاة..."></textarea>
+        <textarea id="filterResult" class="form-control" rows="5" readonly placeholder="الأرقام المصفاة ستظهر هنا..."></textarea>
 
         <div class="action-buttons">
-            <button class="btn-success" onclick="copyText('filterResult')">📋 نسخ النتائج</button>
+            <button class="btn-success" onclick="copyText('filterResult')">📋 نسخ</button>
             <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
         </div>
     </div>
@@ -151,7 +178,7 @@
 <div class="toast" id="toast">تم النسخ بنجاح ✅</div>
 
 <script>
-// إدارة التبويبات
+// --- التنقل والتبويبات ---
 function openTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -159,12 +186,35 @@ function openTab(tabId) {
     event.currentTarget.classList.add('active');
 }
 
+// --- نظام تبديل وضع الإدخال ---
+function setMode(mode) {
+    const manualArea = document.getElementById('manualModeArea');
+    const imageArea = document.getElementById('imageModeArea');
+    const manualBtn = document.getElementById('manualBtn');
+    const imageBtn = document.getElementById('imageBtn');
+    const inputLabel = document.getElementById('inputLabel');
+
+    if (mode === 'manual') {
+        imageArea.style.display = 'none';
+        manualArea.style.display = 'block';
+        manualBtn.classList.add('active');
+        imageBtn.classList.remove('active');
+        inputLabel.innerText = "أدخل النص المراد تنظيفه:";
+    } else {
+        imageArea.style.display = 'block';
+        manualArea.style.display = 'block'; // نتركه مفتوحاً ليرى المستخدم النص المستخرج
+        manualBtn.classList.remove('active');
+        imageBtn.classList.add('active');
+        inputLabel.innerText = "النص المستخرج من الصورة (يمكنك التعديل عليه):";
+    }
+}
+
 window.onload = () => { setTimeout(() => { 
     document.getElementById("loader").style.display = "none"; 
     document.getElementById("main").style.display = "block"; 
 }, 500); };
 
-// دالة النسخ العامة
+// دالة النسخ
 async function copyText(id) {
     const val = document.getElementById(id).value;
     if(!val) return;
@@ -174,7 +224,7 @@ async function copyText(id) {
     setTimeout(()=> t.style.display="none", 2000);
 }
 
-// منطق التبويب الأول (Mass Order)
+// منسق الطلبات الجماعية
 function generateMass() {
     const service = document.getElementById("service").value.trim();
     const qty = document.getElementById("quantity").value.trim();
@@ -194,33 +244,36 @@ function clearMass() {
     document.getElementById("massResult").value = "";
 }
 
-// منطق التبويب الثاني (Filter & OCR)
+// الفلتر والمنظف
 const dropZone = document.getElementById('dropZone');
 const imgInp = document.getElementById('imageInput');
 
 dropZone.onclick = () => imgInp.click();
 imgInp.onchange = (e) => handleImg(e.target.files[0]);
 
-// السحب والإفلات واللصق
 dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
 dropZone.ondragleave = () => dropZone.classList.remove('dragover');
 dropZone.ondrop = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleImg(e.dataTransfer.files[0]); };
 
 document.addEventListener('paste', e => {
-    const item = e.clipboardData.items[0];
-    if(item && item.type.includes('image')) handleImg(item.getAsFile());
+    // يعمل اللصق فقط إذا كان المستخدم في وضع الصورة
+    if(document.getElementById('imageBtn').classList.contains('active')) {
+        const item = e.clipboardData.items[0];
+        if(item && item.type.includes('image')) handleImg(item.getAsFile());
+    }
 });
 
 async function handleImg(file) {
     if(!file) return;
     const status = document.getElementById("status");
     status.style.display = "block";
+    status.innerText = "⏳ جاري التحليل...";
     try {
         const res = await Tesseract.recognize(file, 'eng');
-        document.getElementById("filterInput").value += "\n" + res.data.text;
-        status.innerText = "✅ تم استخراج النص من الصورة!";
+        document.getElementById("filterInput").value = res.data.text;
+        status.innerText = "✅ تم الاستخراج بنجاح!";
         setTimeout(()=> status.style.display="none", 2000);
-    } catch(e) { alert("خطأ في معالجة الصورة"); status.style.display="none"; }
+    } catch(e) { alert("خطأ في القراءة"); status.style.display="none"; }
 }
 
 function processFilter() {
@@ -229,13 +282,13 @@ function processFilter() {
     const sep = document.getElementById("separator").value;
     
     let nums = input.match(/\d+/g);
-    if(!nums) { alert("لا توجد أرقام لمعالجتها"); return; }
+    if(!nums) { alert("لم يتم العثور على أرقام"); return; }
     
     let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
     let unique = [...new Set(filtered)];
     
     document.getElementById("filterResult").value = unique.join(sep);
-    document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم بنجاح.`;
+    document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم.`;
 }
 
 function clearFilter() {
