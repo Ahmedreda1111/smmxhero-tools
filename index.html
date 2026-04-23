@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMMXHERO | Pro Dashboard</title>
+<title>SMMXHERO | Dashboard</title>
 <link rel="icon" href="logo.ico">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
     :root {
         --primary: #0d6efd;
-        --success: #198754;
-        --danger: #dc3545;
+        --success: #12b886;
+        --danger: #fa5252;
         --bg-dark: #1a1b1e;
         --card-bg: #25262b;
         --border: #373a40;
@@ -21,66 +21,83 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
+    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 0; display: flex; flex-direction: column; align-items: center; }
 
-    #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.5s; }
     #loader img { width: 80px; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } }
 
-    .dashboard { width: 100%; max-width: 800px; }
+    /* شريط العنوان العلوي */
+    header { width: 100%; background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: center; align-items: center; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-area img { width: 35px; height: 35px; border-radius: 5px; }
+    .logo-area span { color: #fff; font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+    .logo-area span b { color: var(--primary); }
 
-    .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border); }
-    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 8px; font-weight: 600; transition: 0.3s; }
-    .tab-btn.active { background: var(--primary); color: white; }
+    .dashboard { width: 100%; max-width: 800px; padding: 0 20px; flex: 1; }
 
-    .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 0.4s ease; }
-    .tab-content.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* التبويبات */
+    .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-weight: 700; transition: 0.3s; }
+    .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3); }
 
-    .brand-title { text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
+    .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 40px; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-dim); }
-    .form-control { width: 100%; margin-bottom: 15px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: #141517; color: #c1c2c5; font-size: 14px; outline: none; }
-    .btn-main { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--primary); color: white; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+    label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-dim); }
+    .form-control { width: 100%; margin-bottom: 15px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: #141517; color: #fff; font-size: 14px; outline: none; }
+    .form-control:focus { border-color: var(--primary); }
 
-    /* العداد الحي */
-    .live-counter { display: flex; justify-content: space-between; margin-top: -10px; margin-bottom: 15px; font-size: 12px; }
-    #linkCounterLabel { color: var(--success); font-weight: bold; }
+    .btn-main { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+    .btn-main:hover { filter: brightness(1.2); transform: translateY(-2px); }
 
-    .qty-toggle { margin-bottom: 15px; font-size: 13px; color: var(--text-dim); }
-    .qty-toggle label { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .live-counter { display: flex; justify-content: space-between; margin-top: -10px; margin-bottom: 15px; font-size: 12px; font-weight: 600; }
+    #linkCounterLabel.has-links { color: var(--success); }
+    #linkCounterLabel.no-links { color: var(--danger); }
 
-    .mode-selector { display: flex; background: #141517; padding: 5px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
-    .m-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 600; }
+    .mode-selector { display: flex; background: #141517; padding: 5px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
+    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 700; }
     .m-btn.active { background: var(--border); color: white; }
 
-    .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 35px; border-radius: 8px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
-    .drop-box.dragover { border-color: var(--primary); background: rgba(13, 110, 253, 0.1); }
+    .drop-box { background: rgba(13, 110, 253, 0.03); border: 2px dashed var(--border); padding: 40px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; cursor: pointer; }
+    .drop-box:hover, .drop-box.dragover { border-color: var(--primary); }
 
-    .stats { text-align: center; color: var(--success); font-size: 14px; font-weight: 600; margin: 10px 0; min-height: 20px; }
-    .action-btns { display: flex; gap: 10px; }
-    .btn-success { background: var(--success); flex: 1; padding: 12px; border-radius: 8px; color: white; font-weight: 600; border: none; cursor: pointer; }
-    .btn-danger { background: var(--danger); flex: 1; padding: 12px; border-radius: 8px; color: white; font-weight: 600; border: none; cursor: pointer; }
+    .stats { text-align: center; color: var(--success); font-size: 14px; font-weight: 700; margin: 15px 0; min-height: 22px; }
+    .action-btns { display: flex; gap: 12px; margin-top: 10px; }
+    .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; }
+    .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; }
 
-    .toast { position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 25px; border-radius: 8px; display: none; z-index: 1000; }
+    /* فوتر حقوق النشر */
+    footer { width: 100%; background: transparent; padding: 20px; text-align: center; color: var(--text-dim); font-size: 13px; border-top: 1px solid var(--border); margin-top: auto; }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 14px; font-weight: 600; border: 1px solid var(--success); }
 </style>
 </head>
 <body>
 
 <div id="loader"><img src="logo.ico" alt="Loading"></div>
 
+<header>
+    <a href="https://smmxhero.com" class="logo-area">
+        <img src="logo.ico" alt="SMMXHERO Logo">
+        <span>SMMX<b>HERO</b></span>
+    </a>
+</header>
+
 <div class="dashboard" id="main" style="display:none;">
     
     <div class="tabs-header">
-        <button class="tab-btn active" onclick="openTab('massTab')">📦 منسق الطلبات</button>
-        <button class="tab-btn" onclick="openTab('filterTab')">🔍 تصفية الأرقام</button>
+        <button class="tab-btn active" id="tab1" onclick="openTab('massTab')">📦 منسق الطلبات</button>
+        <button class="tab-btn" id="tab2" onclick="openTab('filterTab')">🔍 تصفية الأرقام</button>
     </div>
 
     <div id="massTab" class="tab-content active">
-        <div class="brand-title">SMMXHERO | مُنسّق الطلبات الجماعية</div>
+        <div style="text-align:center; margin-bottom:20px; color:var(--text-main); font-weight:700;">مُنسّق الطلبات الجماعية الذكي</div>
         
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
+        <div style="display: flex; gap: 12px;">
+            <div style="flex: 1.2;">
                 <label>رقم الخدمة (Service ID)</label>
                 <input type="text" id="massService" class="form-control" placeholder="101">
             </div>
@@ -90,11 +107,14 @@
             </div>
         </div>
 
-        <div class="qty-toggle">
-            <label><input type="checkbox" id="massRandomCheck" onchange="toggleMassQty()"> توزيع الكميات عشوائياً (مستحسن)</label>
+        <div style="margin-bottom: 15px;">
+            <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-size: 13px;">
+                <input type="checkbox" id="massRandomCheck" onchange="toggleMassQty()" style="accent-color: var(--primary);">
+                توزيع الكميات عشوائياً (مستحسن)
+            </label>
         </div>
 
-        <div id="massRandomGroup" style="display: none; gap: 10px; margin-bottom: 15px;">
+        <div id="massRandomGroup" style="display: none; gap: 12px; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <label>الحد الأدنى</label>
                 <input type="number" id="massMin" class="form-control" placeholder="50">
@@ -105,28 +125,26 @@
             </div>
         </div>
 
-        <label>روابط الطلبات (رابط واحد في كل سطر)</label>
-        <textarea id="massLinks" class="form-control" rows="5" placeholder="https://..."></textarea>
+        <label>روابط الطلبات</label>
+        <textarea id="massLinks" class="form-control" rows="6" placeholder="الصق الروابط هنا..."></textarea>
         
         <div class="live-counter">
-            <span id="linkCounterLabel">عدد الروابط: 0</span>
-            <span style="color: var(--text-dim)">رابط واحد لكل سطر</span>
+            <span id="linkCounterLabel" class="no-links">عدد الروابط: 0</span>
         </div>
 
-        <button class="btn-main" onclick="runMassFormatter()">⚡ توليد الطلبات الجماعية</button>
+        <button class="btn-main" onclick="runMassFormatter()">🚀 توليد التنسيق النهائي</button>
         <div id="massStats" class="stats"></div>
-        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="النتيجة النهائية..."></textarea>
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="النتيجة..."></textarea>
 
         <div class="action-btns">
-            <button class="btn-success" onclick="copyValue('massResult')">📋 نسخ</button>
+            <button class="btn-success" onclick="copyValue('massResult')">📋 نسخ الطلبات</button>
             <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
         </div>
     </div>
 
     <div id="filterTab" class="tab-content">
-        <div class="brand-title">SMMXHERO | فلتر وتصفية الأرقام</div>
+        <div style="text-align:center; margin-bottom:20px; color:var(--text-main); font-weight:700;">أداة تصفية واستخراج الأرقام</div>
 
-        <label>طريقة الإدخال:</label>
         <div class="mode-selector">
             <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
             <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 من صورة</button>
@@ -134,21 +152,19 @@
 
         <div id="filterImageSection" style="display: none;">
             <div class="drop-box" id="filterDropZone">
-                <strong>📷 اسحب الصورة أو اضغط أو Ctrl+V</strong>
-                <p style="font-size: 11px; color: var(--text-dim);">يدعم استخراج النصوص تلقائياً</p>
+                <strong>📸 اسحب سكرين شوت هنا</strong>
                 <input type="file" id="filterImgInput" accept="image/*" style="display:none">
             </div>
-            <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:10px; display:none;">⏳ جاري التحليل...</div>
+            <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;">⏳ جاري المعالجة...</div>
         </div>
 
-        <label id="filterLabel">النص المراد تصفيته:</label>
-        <textarea id="filterInput" class="form-control" rows="5" placeholder="ضع النص الذي يحتوي على أرقام هنا..."></textarea>
+        <textarea id="filterInput" class="form-control" rows="6" placeholder="ضع النص هنا..."></textarea>
 
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
+        <div style="display: flex; gap: 12px;">
+            <div style="flex: 1.5;">
                 <label>نوع الفلترة</label>
                 <select id="filterType" class="form-control">
-                    <option value="id">أرقام الطلبات (5+ خانات)</option>
+                    <option value="id">أرقام الـ ID (5 خانات+)</option>
                     <option value="all">جميع الأرقام</option>
                 </select>
             </div>
@@ -161,9 +177,9 @@
             </div>
         </div>
 
-        <button class="btn-main" onclick="runFilter()">⚡ تصفية واستخراج الأرقام</button>
+        <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام</button>
         <div id="filterStats" class="stats"></div>
-        <textarea id="filterResult" class="form-control" rows="5" readonly placeholder="الأرقام المصفاة..."></textarea>
+        <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
 
         <div class="action-btns">
             <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button>
@@ -172,10 +188,15 @@
     </div>
 </div>
 
-<div class="toast" id="toast">تم النسخ بنجاح ✅</div>
+<footer>
+    <p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p>
+    <p style="margin-top: 5px; opacity: 0.6; font-size: 11px;">تم التطوير لتقديم أفضل تجربة إدارة طلبات SMM</p>
+</footer>
+
+<div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
-// --- التنقل بين التبويبات ---
+// --- المنطق البرمجي (بقاء نفس الدوال السابقة مع تحسين طفيف) ---
 function openTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -183,22 +204,25 @@ function openTab(id) {
     event.currentTarget.classList.add('active');
 }
 
-window.onload = () => { setTimeout(() => { 
-    document.getElementById("loader").style.display = "none"; 
-    document.getElementById("main").style.display = "block"; 
-}, 500); };
+window.onload = () => {
+    setTimeout(() => { 
+        document.getElementById("loader").style.opacity = "0"; 
+        setTimeout(() => document.getElementById("loader").style.display = "none", 500);
+        document.getElementById("main").style.display = "block"; 
+    }, 600); 
+};
 
-// --- منطق الأداة الأولى (Mass Order) ---
-// تحديث العداد الحي
 document.getElementById("massLinks").addEventListener("input", function() {
-    const text = this.value.trim();
-    const count = text ? text.split('\n').filter(line => line.trim() !== "").length : 0;
-    document.getElementById("linkCounterLabel").innerText = `عدد الروابط: ${count}`;
+    const count = this.value.trim() ? this.value.trim().split('\n').filter(l => l.trim() !== "").length : 0;
+    const label = document.getElementById("linkCounterLabel");
+    label.innerText = `عدد الروابط: ${count}`;
+    label.className = count > 0 ? "has-links" : "no-links";
 });
 
 function toggleMassQty() {
     const isRnd = document.getElementById("massRandomCheck").checked;
-    document.getElementById("massFixedQty").style.display = isRnd ? "none" : "block";
+    document.getElementById("massFixedQty").style.opacity = isRnd ? "0.3" : "1";
+    document.getElementById("massFixedQty").style.pointerEvents = isRnd ? "none" : "all";
     document.getElementById("massRandomGroup").style.display = isRnd ? "flex" : "none";
 }
 
@@ -210,7 +234,7 @@ function runMassFormatter() {
     const min = parseInt(document.getElementById("massMin").value);
     const max = parseInt(document.getElementById("massMax").value);
 
-    if(!service) { alert("يرجى إدخال رقم الخدمة"); return; }
+    if(!service) { showToast("⚠️ أدخل رقم الخدمة"); return; }
     
     let res = "";
     let validCount = 0;
@@ -226,36 +250,24 @@ function runMassFormatter() {
         }
     });
     document.getElementById("massResult").value = res.trim();
-    document.getElementById("massStats").innerText = `✅ تم تنسيق ${validCount} طلب بنجاح.`;
+    document.getElementById("massStats").innerText = `✅ تم معالجة ${validCount} رابط.`;
 }
 
-function clearMass() {
-    document.getElementById("massService").value = "";
-    document.getElementById("massQty").value = "";
-    document.getElementById("massLinks").value = "";
-    document.getElementById("massResult").value = "";
-    document.getElementById("massStats").innerText = "";
-    document.getElementById("linkCounterLabel").innerText = "عدد الروابط: 0";
-}
-
-// --- منطق الأداة الثانية (Filter) ---
 function switchFilterMode(mode) {
     const isImg = (mode === 'image');
     document.getElementById("filterImageSection").style.display = isImg ? "block" : "none";
     document.getElementById("btnManual").classList.toggle("active", !isImg);
     document.getElementById("btnImage").classList.toggle("active", isImg);
-    document.getElementById("filterLabel").innerText = isImg ? "النص المستخرج من الصورة:" : "النص المراد تصفيته:";
 }
 
-const fDropZone = document.getElementById("filterDropZone");
-const fImgInp = document.getElementById("filterImgInput");
+const fDrop = document.getElementById("filterDropZone");
+const fImg = document.getElementById("filterImgInput");
+fDrop.onclick = () => fImg.click();
+fImg.onchange = (e) => handleOcr(e.target.files[0]);
 
-fDropZone.onclick = () => fImgInp.click();
-fImgInp.onchange = (e) => handleOcr(e.target.files[0]);
-
-fDropZone.ondragover = (e) => { e.preventDefault(); fDropZone.classList.add('dragover'); };
-fDropZone.ondragleave = () => fDropZone.classList.remove('dragover');
-fDropZone.ondrop = (e) => { e.preventDefault(); fDropZone.classList.remove('dragover'); handleOcr(e.dataTransfer.files[0]); };
+fDrop.ondragover = (e) => { e.preventDefault(); fDrop.classList.add('dragover'); };
+fDrop.ondragleave = () => fDrop.classList.remove('dragover');
+fDrop.ondrop = (e) => { e.preventDefault(); fDrop.classList.remove('dragover'); handleOcr(e.dataTransfer.files[0]); };
 
 document.addEventListener('paste', e => {
     if(document.getElementById("btnImage").classList.contains("active")) {
@@ -271,9 +283,9 @@ async function handleOcr(file) {
     try {
         const r = await Tesseract.recognize(file, 'eng');
         document.getElementById("filterInput").value = r.data.text;
-        st.innerText = "✅ تم استخراج النص!";
+        st.innerText = "✅ تم القراءة!";
         setTimeout(()=> st.style.display="none", 2000);
-    } catch(e) { alert("خطأ في القراءة"); st.style.display="none"; }
+    } catch(e) { showToast("❌ خطأ في الصورة"); st.style.display="none"; }
 }
 
 function runFilter() {
@@ -281,27 +293,38 @@ function runFilter() {
     const type = document.getElementById("filterType").value;
     const sep = document.getElementById("filterSep").value;
     let nums = input.match(/\d+/g);
-    if(!nums) { alert("لم يتم العثور على أرقام"); return; }
+    if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
     let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
     let unique = [...new Set(filtered)];
     document.getElementById("filterResult").value = unique.join(sep);
     document.getElementById("filterStats").innerText = `✅ تم تصفية ${unique.length} رقم.`;
 }
 
-function clearFilter() {
-    document.getElementById("filterInput").value = "";
-    document.getElementById("filterResult").value = "";
-    document.getElementById("filterStats").innerText = "";
-}
-
-// --- وظائف عامة ---
 async function copyValue(id) {
     const v = document.getElementById(id).value;
     if(!v) return;
     await navigator.clipboard.writeText(v);
+    showToast("📋 تم النسخ!");
+}
+
+function showToast(msg) {
     const t = document.getElementById("toast");
+    t.innerText = msg;
     t.style.display = "block";
     setTimeout(()=> t.style.display="none", 2000);
+}
+
+function clearMass() {
+    document.getElementById("massLinks").value = "";
+    document.getElementById("massResult").value = "";
+    document.getElementById("massStats").innerText = "";
+    document.getElementById("linkCounterLabel").innerText = "عدد الروابط: 0";
+}
+
+function clearFilter() {
+    document.getElementById("filterInput").value = "";
+    document.getElementById("filterResult").value = "";
+    document.getElementById("filterStats").innerText = "";
 }
 </script>
 </body>
