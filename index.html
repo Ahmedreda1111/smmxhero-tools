@@ -22,9 +22,26 @@ body { background: #1a1b1e; color: #e5e7eb; display: flex; justify-content: cent
 .container { width: 100%; max-width: 600px; background: #25262b; padding: 30px; border-radius: 8px; border: 1px solid #373a40; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 .brand { text-align: center; color: #e5e7eb; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
 
-.ocr-section { background: rgba(13, 110, 253, 0.1); border: 2px dashed #0d6efd; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
-.ocr-section:hover { background: rgba(13, 110, 253, 0.2); }
-.ocr-section p { font-size: 13px; color: #3b82f6; margin-top: 5px; }
+/* تم تحسين تصميم منطقة الرفع والسحب */
+.ocr-section { 
+    background: rgba(13, 110, 253, 0.05); 
+    border: 2px dashed #373a40; 
+    padding: 30px 15px; 
+    border-radius: 8px; 
+    text-align: center; 
+    margin-bottom: 15px; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+}
+
+.ocr-section.dragover { 
+    background: rgba(13, 110, 253, 0.2); 
+    border-color: #0d6efd; 
+    transform: scale(1.02);
+}
+
+.ocr-section strong { color: #e5e7eb; display: block; margin-bottom: 5px; }
+.ocr-section p { font-size: 13px; color: #909296; }
 
 label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
 .form-control { width: 100%; margin-bottom: 15px; padding: 12px 15px; border-radius: 6px; border: 1px solid #373a40; background: #141517; color: #c1c2c5; font-size: 14px; outline: none; }
@@ -42,7 +59,7 @@ label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
 .filter-settings { background: #1c1d21; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #373a40; }
 .filter-settings span { font-size: 12px; color: #909296; display: block; margin-bottom: 5px; }
 
-.toast { position: fixed; bottom: 20px; right: 20px; background: #198754; color: white; padding: 10px 20px; border-radius: 6px; display: none; font-size: 14px; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: #198754; color: white; padding: 10px 20px; border-radius: 6px; display: none; font-size: 14px; z-index: 10001; }
 </style>
 </head>
 
@@ -51,25 +68,25 @@ label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
 <div id="loader"><img src="logo.ico" alt="Loading"></div>
 
 <div class="container" id="main" style="display:none;">
-    <div class="brand">SMMXHERO | مُستخرج الأرقام الفلتر الذكي 📷</div>
+    <div class="brand">SMMXHERO | مُستخرج الأرقام الذكي 📷</div>
 
-    <div class="ocr-section" onclick="document.getElementById('imageInput').click()">
-        <strong>📷 ارفع سكرين شوت الطلبات (حتى لو جدول)</strong>
-        <p>سيتم فلترة الأرقام والكميات تلقائياً</p>
-        <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="processImage(this)">
+    <div class="ocr-section" id="dropZone">
+        <strong>📷 اسحب الصورة هنا أو اضغط للاختيار</strong>
+        <p>يدعم اللصق المباشر Ctrl + V</p>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
     </div>
 
     <div id="status">⏳ جاري تحليل الصورة...</div>
 
     <div class="filter-settings">
-        <span>⚙️ إعدادات الفلترة الذكية:</span>
+        <span>⚙️ إعدادات الفلترة:</span>
         <label style="display: inline-flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer;">
             <input type="checkbox" id="idLengthFilter" checked style="width:15px; height:15px;"> استخراج الأرقام الطويلة فقط (Order ID)
         </label>
     </div>
 
-    <label>النص المستخرج من الصورة</label>
-    <textarea id="input" class="form-control" rows="4" placeholder="سيظهر النص هنا بعد قراءة الصورة..."></textarea>
+    <label>النص المستخرج</label>
+    <textarea id="input" class="form-control" rows="4" placeholder="سيظهر النص هنا..."></textarea>
 
     <label>الفاصل المطلوب</label>
     <select id="separator" class="form-control">
@@ -77,12 +94,12 @@ label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
         <option value="&#10;">سطر جديد</option>
     </select>
 
-    <button class="btn-primary" onclick="convert()">⚡ تنظيف واستخراج أرقام الطلبات فقط</button>
+    <button class="btn-primary" onclick="convert()">⚡ تنظيف واستخراج يدوي</button>
 
     <div id="stats" class="stats-text"></div>
 
-    <label>النتيجة النهائية (أرقام الطلبات المفلترة)</label>
-    <textarea id="result" class="form-control" rows="5" readonly placeholder="الأرقام الصافية ستظهر هنا..."></textarea>
+    <label>أرقام الطلبات المفلترة</label>
+    <textarea id="result" class="form-control" rows="5" readonly placeholder="النتائج ستظهر هنا..."></textarea>
 
     <div class="action-buttons">
         <button class="btn-success" onclick="copy()">📋 نسخ النتيجة</button>
@@ -93,6 +110,9 @@ label { display: block; margin-bottom: 5px; font-size: 14px; color: #909296; }
 <div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('imageInput');
+
 window.onload = () => {
     setTimeout(() => {
         document.getElementById("loader").style.display = "none";
@@ -100,24 +120,71 @@ window.onload = () => {
     }, 500);
 };
 
-async function processImage(input) {
-    const file = input.files[0];
-    if (!file) return;
+// --- ميزة السحب والإدراج (Drag & Drop) ---
 
+// منع السلوك الافتراضي للمتصفح عند سحب الملفات
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, false);
+});
+
+// إضافة تأثير بصري عند السحب فوق المربع
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.add('dragover');
+    }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.remove('dragover');
+    }, false);
+});
+
+// معالجة الملف عند إلقائه (Drop)
+dropZone.addEventListener('drop', e => {
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        performOCR(file);
+    }
+});
+
+// تشغيل اختيار الملف عند الضغط على المربع
+dropZone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', function() {
+    if (this.files[0]) performOCR(this.files[0]);
+});
+
+// --- ميزة اللصق (Paste) ---
+document.addEventListener('paste', e => {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            performOCR(item.getAsFile());
+        }
+    }
+});
+
+// --- معالجة OCR ---
+async function performOCR(file) {
     const status = document.getElementById("status");
     const inputArea = document.getElementById("input");
     
     status.style.display = "block";
-    status.innerText = "⏳ جاري تحليل الصورة واستخراج البيانات...";
+    status.innerText = "⏳ جاري القراءة ذكياً...";
+    inputArea.value = "";
 
     try {
         const result = await Tesseract.recognize(file, 'eng');
-        inputArea.value = result.data.text; // نضع النص كامل كما هو للمراجعة
-        
-        status.innerText = "✅ تم قراءة الصورة! اضغط (تنظيف) لاستخراج أرقام الطلبات.";
-        setTimeout(() => status.style.display = "none", 4000);
+        inputArea.value = result.data.text; 
+        status.innerText = "✅ تم التحليل!";
+        convert(); // تشغيل الفلترة تلقائياً
+        setTimeout(() => status.style.display = "none", 3000);
     } catch (e) {
-        alert("فشل في القراءة. يرجى محاولة رفع صورة أوضح.");
+        alert("فشل في قراءة الصورة.");
         status.style.display = "none";
     }
 }
@@ -127,32 +194,19 @@ function convert() {
     const separator = document.getElementById("separator").value;
     const useLengthFilter = document.getElementById("idLengthFilter").checked;
     
-    // استخراج كل الأرقام من النص
     let numbers = input.match(/\d+/g);
+    if (!numbers) return;
 
-    if (!numbers) {
-        alert("لم يتم العثور على أرقام في النص.");
-        return;
-    }
-
-    let filteredNumbers = [];
-
-    if (useLengthFilter) {
-        // فلتر الأرقام الطويلة: نفترض أن Order ID لا يقل عن 5 أرقام
-        // والكميات والأسعار غالباً أقل من ذلك في أغلب الطلبات
-        filteredNumbers = numbers.filter(num => num.length >= 5);
-    } else {
-        filteredNumbers = numbers;
-    }
+    let filteredNumbers = useLengthFilter ? numbers.filter(num => num.length >= 5) : numbers;
 
     if (filteredNumbers.length === 0) {
-        alert("لم يتم العثور على أرقام تطابق شروط الفلترة (طول 5 خانات فأكثر).");
+        document.getElementById("stats").innerText = "⚠️ لم نجد أرقام طلبات (5+ أرقام)";
         return;
     }
 
     const uniqueNumbers = [...new Set(filteredNumbers)];
     document.getElementById("result").value = uniqueNumbers.join(separator);
-    document.getElementById("stats").innerText = `✅ تم تصفية ${uniqueNumbers.length} رقم طلب (تم تجاهل الأسعار والكميات).`;
+    document.getElementById("stats").innerText = `✅ تم استخراج ${uniqueNumbers.length} رقم طلب.`;
 }
 
 async function copy() {
@@ -168,7 +222,8 @@ function clearAll() {
     document.getElementById("input").value = "";
     document.getElementById("result").value = "";
     document.getElementById("stats").innerText = "";
-    document.getElementById("imageInput").value = "";
+    fileInput.value = "";
+    document.getElementById("status").style.display = "none";
 }
 </script>
 
