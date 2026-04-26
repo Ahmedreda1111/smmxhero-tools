@@ -1,84 +1,84 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMMXHERO | Smart Dashboard</title>
-<link rel="icon" href="logo.ico">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMMXHERO | Smart Dashboard</title>
+    <link rel="icon" href="logo.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-<style>
-    :root {
-        --primary: #0d6efd;
-        --success: #12b886;
-        --danger: #fa5252;
-        --bg-dark: #1a1b1e;
-        --card-bg: #25262b;
-        --border: #373a40;
-        --text-main: #e5e7eb;
-        --text-dim: #909296;
-        --input-bg: #141517;
-    }
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --success: #12b886;
+            --danger: #fa5252;
+            --bg-dark: #1a1b1e;
+            --card-bg: #25262b;
+            --border: #373a40;
+            --text-main: #e5e7eb;
+            --text-dim: #909296;
+            --input-bg: #141517;
+        }
 
-    .light-mode {
-        --bg-dark: #f8f9fa;
-        --card-bg: #ffffff;
-        --border: #dee2e6;
-        --text-main: #212529;
-        --text-dim: #6c757d;
-        --input-bg: #f1f3f5;
-    }
+        .light-mode {
+            --bg-dark: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #dee2e6;
+            --text-main: #212529;
+            --text-dim: #6c757d;
+            --input-bg: #f1f3f5;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
 
-    header { width: 100%; background: var(--card-bg); padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-    .logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-area img { width: 35px; border-radius: 50%; }
-    .logo-area span { color: var(--text-main); font-size: 18px; font-weight: 800; }
-    .logo-area span b { color: var(--primary); }
+        header { width: 100%; background: var(--card-bg); padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-area img { width: 35px; border-radius: 50%; }
+        .logo-area span { color: var(--text-main); font-size: 18px; font-weight: 800; }
+        .logo-area span b { color: var(--primary); }
 
-    .theme-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 12px; font-weight: 700; }
+        .theme-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 12px; font-weight: 700; }
 
-    .dashboard { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
+        .dashboard { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
 
-    .tabs-header { display: flex; gap: 8px; margin-bottom: 25px; background: var(--card-bg); padding: 6px; border-radius: 14px; border: 1px solid var(--border); }
-    .tab-btn { flex: 1; padding: 14px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-weight: 800; font-size: 15px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .tab-btn.active { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+        .tabs-header { display: flex; gap: 8px; margin-bottom: 25px; background: var(--card-bg); padding: 6px; border-radius: 14px; border: 1px solid var(--border); }
+        .tab-btn { flex: 1; padding: 14px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-weight: 800; font-size: 15px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tab-btn.active { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
 
-    .tab-content { display: none; background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); animation: slideUp 0.4s ease; }
-    .tab-content.active { display: block; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { display: none; background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); animation: slideUp 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .form-control { width: 100%; margin-bottom: 15px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 14px; outline: none; }
-    label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--text-dim); }
+        .form-control { width: 100%; margin-bottom: 15px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 14px; outline: none; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--text-dim); }
 
-    .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
 
-    .mode-selector { display: flex; background: var(--input-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); gap: 5px; }
-    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-size: 13px; font-weight: 700; }
-    .m-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .mode-selector { display: flex; background: var(--input-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); gap: 5px; }
+        .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-size: 13px; font-weight: 700; }
+        .m-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
 
-    .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s; }
-    .drop-box.dragover { background: rgba(13, 110, 253, 0.15); border-color: var(--primary); }
+        .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s; }
+        .drop-box.dragover { background: rgba(13, 110, 253, 0.15); border-color: var(--primary); }
 
-    .action-btns { display: flex; gap: 10px; margin-top: 15px; }
-    .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
-    .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
+        .action-btns { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
+        .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
 
-    .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: 0.3s; text-decoration: none; font-size: 30px; }
-    .whatsapp-float span { position: absolute; right: 70px; background: #25d366; padding: 5px 15px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; opacity: 0; transition: 0.3s; }
-    .whatsapp-float:hover span { opacity: 1; }
+        .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: 0.3s; text-decoration: none; font-size: 30px; }
+        .whatsapp-float span { position: absolute; right: 70px; background: #25d366; padding: 5px 15px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; opacity: 0; transition: 0.3s; }
+        .whatsapp-float:hover span { opacity: 1; }
 
-    .stats-box { background: rgba(18, 184, 134, 0.1); border: 1px solid var(--success); padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; display: none; }
-    
-    #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-    #loader img { width: 60px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 50% { opacity: 0.5; transform: scale(1.1); } }
+        .stats-box { background: rgba(18, 184, 134, 0.1); border: 1px solid var(--success); padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; display: none; }
+        
+        #loader { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        #loader img { width: 60px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; transform: scale(1.1); } }
 
-    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; font-size: 14px; font-weight: 700; }
-</style>
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; font-size: 14px; font-weight: 700; text-align: center; min-width: 200px; }
+    </style>
 </head>
 <body>
 
@@ -121,24 +121,36 @@
     <div id="filterTab" class="tab-content">
         <div class="mode-selector">
             <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
-            <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 صورة / سحب</button>
+            <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 صورة / لصق</button>
         </div>
+        
         <div id="filterImageSection" style="display: none;">
             <div class="drop-box" id="dropZone" onclick="document.getElementById('filterImgInput').click()">
                 <strong>📸 اضغط أو اسحب الصورة هنا</strong>
-                <p style="font-size: 12px; color: var(--text-dim); margin-top: 10px;">أو استخدم Ctrl+V للصق</p>
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 10px;">أو استخدم <b>Ctrl+V</b> للصق الصورة مباشرة</p>
                 <input type="file" id="filterImgInput" accept="image/*" style="display:none" onchange="handleOcr(this.files[0])">
             </div>
         </div>
+
         <textarea id="filterInput" class="form-control" rows="6" placeholder="الصق النص هنا..."></textarea>
+        
         <div style="display: flex; gap: 12px;">
-            <div style="flex: 1;"><label>التصفية</label><select id="filterType" class="form-control"><option value="id">أرقام طلبات (5+)</option><option value="all">كل الأرقام</option></select></div>
+            <div style="flex: 1;"><label>التصفية</label>
+                <select id="filterType" class="form-control">
+                    <option value="id">أرقام طلبات (5+ أرقام)</option>
+                    <option value="all">كل الأرقام المستخرجة</option>
+                </select>
+            </div>
             <div style="flex: 1;"><label>الفاصل</label><input type="text" class="form-control" value="فاصلة ( , )" readonly style="text-align: center; opacity: 0.7;"></div>
         </div>
+
         <button class="btn-main" onclick="runFilter()">⚡ استخراج بالفاصلة</button>
         <div id="filterStatsBox" class="stats-box"><p id="filterStats"></p></div>
         <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
-        <div class="action-btns"><button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button><button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button></div>
+        <div class="action-btns">
+            <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ النتائج</button>
+            <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
+        </div>
     </div>
 </div>
 
@@ -147,19 +159,24 @@
 <div class="toast" id="toast"></div>
 
 <script>
+    // --- التحكم بالسمة (Theme) ---
     function toggleTheme() {
         document.body.classList.toggle("light-mode");
         const isL = document.body.classList.contains("light-mode");
-        document.getElementById("themeBtn").innerText = isL ? "☀️ النهاري" : "🌙 الليلي";
+        document.getElementById("themeBtn").innerText = isL ? "☀️ الوضع النهاري" : "🌙 الوضع الليلي";
         localStorage.setItem("theme", isL ? "light" : "dark");
     }
 
     window.onload = () => {
         if(localStorage.getItem("theme") === "light") toggleTheme();
         document.getElementById("massService").value = localStorage.getItem('svc') || "";
-        setTimeout(() => { document.getElementById("loader").style.display = "none"; document.getElementById("main").style.display = "block"; }, 500);
+        setTimeout(() => { 
+            document.getElementById("loader").style.display = "none"; 
+            document.getElementById("main").style.display = "block"; 
+        }, 500);
     };
 
+    // --- التنقل بين التبويبات ---
     function openTab(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -174,29 +191,54 @@
         document.getElementById("btnImage").classList.toggle("active", isImg);
     }
 
-    // --- ميزات السحب والإفلات واللصق ---
+    // --- ميزات السحب والإفلات واللصق (إصلاح مشكلة لصق الصور) ---
     const dropZone = document.getElementById('dropZone');
+    
     dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
     dropZone.ondragleave = () => dropZone.classList.remove('dragover');
-    dropZone.ondrop = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleOcr(e.dataTransfer.files[0]); };
+    dropZone.ondrop = (e) => { 
+        e.preventDefault(); 
+        dropZone.classList.remove('dragover'); 
+        if(e.dataTransfer.files.length > 0) handleOcr(e.dataTransfer.files[0]); 
+    };
 
-    document.addEventListener('paste', (e) => {
+    // مراقب اللصق العالمي
+    document.addEventListener('paste', async (e) => {
+        // نتحقق إذا كان المستخدم في تبويب الصورة
         if (document.getElementById('btnImage').classList.contains('active')) {
-            const item = e.clipboardData.items[0];
-            if (item && item.type.includes('image')) handleOcr(item.getAsFile());
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.includes('image')) {
+                    const blob = item.getAsFile();
+                    handleOcr(blob);
+                }
+            }
         }
     });
 
+    // دالة تحليل الصورة (OCR)
     async function handleOcr(file) {
         if(!file) return;
-        showToast("⏳ جاري التحليل...");
+        showToast("⏳ جاري تحليل الصورة... انتظر ثوانٍ");
+        
         try {
-            const r = await Tesseract.recognize(file, 'eng');
-            document.getElementById("filterInput").value = r.data.text;
-            showToast("✅ تم الاستخراج");
-        } catch(e) { showToast("❌ فشل التحليل"); }
+            // استخدام النسخة الحديثة من Tesseract
+            const worker = await Tesseract.createWorker('eng');
+            const { data: { text } } = await worker.recognize(file);
+            
+            document.getElementById("filterInput").value = text;
+            await worker.terminate();
+            
+            showToast("✅ تم استخراج النص");
+            runFilter(); // تشغيل الفلتر تلقائياً بعد الاستخراج
+        } catch(e) { 
+            console.error(e);
+            showToast("❌ فشل التحليل، حاول مرة أخرى"); 
+        }
     }
 
+    // --- وظائف التنسيق المجمع (Mass) ---
     function toggleMassQty() {
         const isR = document.getElementById("massRandomCheck").checked;
         document.getElementById("massFixedQty").style.opacity = isR ? "0.3" : "1";
@@ -210,43 +252,59 @@
         const qty = document.getElementById("massQty").value;
         const min = parseInt(document.getElementById("massMin").value);
         const max = parseInt(document.getElementById("massMax").value);
-        if(!svc) { showToast("⚠️ رقم الخدمة مطلوب"); return; }
+
+        if(!svc) { showToast("⚠️ يرجى إدخال رقم الخدمة"); return; }
+        
         let res = ""; let c = 0;
         links.forEach(l => {
-            const url = l.trim().match(/(https?:\/\/[^\s]+)/i);
-            if(url) {
+            const line = l.trim();
+            if(line) {
                 const fQty = isR ? Math.floor(Math.random()*(max-min+1))+min : qty;
-                res += `${svc} | ${url[0]} | ${fQty}\n`; c++;
+                res += `${svc} | ${line} | ${fQty}\n`; c++;
             }
         });
+        
         document.getElementById("massResult").value = res.trim();
         document.getElementById("massStatsBox").style.display = "block";
-        document.getElementById("massStats").innerText = `✨ تم تنسيق ${c} طلب!`;
+        document.getElementById("massStats").innerText = `✨ تم تنسيق ${c} طلب بنجاح!`;
     }
 
+    // --- وظائف التصفية (Filter) ---
     function runFilter() {
         const input = document.getElementById("filterInput").value;
         const type = document.getElementById("filterType").value;
+        
+        // استخراج كل الأرقام من النص
         let nums = input.match(/\d+/g);
-        if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
+        if(!nums) { showToast("⚠️ لم يتم العثور على أرقام"); return; }
+        
+        // تصفية الأرقام (أرقام الطلبات عادة تكون 5 خانات فأكثر)
         let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
+        
+        // إزالة التكرار
         let unique = [...new Set(filtered)];
+        
         document.getElementById("filterResult").value = unique.join(",");
         document.getElementById("filterStatsBox").style.display = "block";
-        document.getElementById("filterStats").innerText = `✅ استخراج ${unique.length} رقم.`;
+        document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم فريد.`;
     }
 
+    // --- أدوات مساعدة ---
     function showToast(msg) {
         const t = document.getElementById("toast");
         t.innerText = msg; t.style.display = "block";
-        setTimeout(()=> t.style.display="none", 2500);
+        setTimeout(()=> t.style.display="none", 3000);
     }
 
     async function copyValue(id) {
         const v = document.getElementById(id).value;
         if(!v) return;
-        await navigator.clipboard.writeText(v);
-        showToast("📋 تم النسخ!");
+        try {
+            await navigator.clipboard.writeText(v);
+            showToast("📋 تم النسخ إلى الحافظة");
+        } catch (err) {
+            showToast("❌ فشل النسخ التلقائي");
+        }
     }
 
     async function copyAndRedirect(id) {
@@ -254,8 +312,18 @@
         setTimeout(() => window.open("https://smmxhero.com/orders", "_blank"), 800);
     }
 
-    function clearMass() { document.getElementById("massLinks").value = ""; document.getElementById("massResult").value = ""; }
-    function clearFilter() { document.getElementById("filterInput").value = ""; document.getElementById("filterResult").value = ""; }
+    function clearMass() { 
+        document.getElementById("massLinks").value = ""; 
+        document.getElementById("massResult").value = ""; 
+        document.getElementById("massStatsBox").style.display = "none";
+    }
+
+    function clearFilter() { 
+        document.getElementById("filterInput").value = ""; 
+        document.getElementById("filterResult").value = ""; 
+        document.getElementById("filterStatsBox").style.display = "none";
+    }
+
     function saveS() { localStorage.setItem('svc', document.getElementById("massService").value); }
 </script>
 </body>
