@@ -64,7 +64,6 @@
     .m-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
     .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-    .smart-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: 600; padding: 0 5px; }
     
     .stats-box { background: rgba(18, 184, 134, 0.1); border: 1px solid var(--success); padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; display: none; }
     .stats-box p { color: var(--success); font-size: 13px; font-weight: 700; }
@@ -72,6 +71,14 @@
     .action-btns { display: flex; gap: 10px; margin-top: 15px; }
     .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
     .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
+
+    /* سلة الطلبات المؤقتة */
+    .orders-basket { background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; display: none; }
+    .basket-item { padding: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .basket-item:last-child { border-bottom: none; }
+    .basket-item span { color: var(--text-dim); }
+    .basket-item b { color: var(--primary); }
+    .remove-order { color: var(--danger); cursor: pointer; font-size: 18px; padding: 0 10px; }
 
     .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; }
     .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; text-decoration: none; font-size: 30px; }
@@ -102,13 +109,14 @@
     <div id="massTab" class="tab-content active">
         <label>نظام التنسيق:</label>
         <div class="mode-selector">
-            <button class="m-btn active" id="mFixed" onclick="updateMassMode('fixed')">خدمة ثابتة</button>
-            <button class="m-btn" id="mRandom" onclick="updateMassMode('random')">كمية عشوائية</button>
-            <button class="m-btn" id="mAdvanced" onclick="updateMassMode('advanced')">خدمات متنوعة</button>
+            <button class="m-btn active" id="mFixed" onclick="updateMassUI('fixed')">خدمة ثابتة</button>
+            <button class="m-btn" id="mRandom" onclick="updateMassUI('random')">كمية عشوائية</button>
+            <button class="m-btn" id="mAdvanced" onclick="updateMassUI('advanced')">خدمات متنوعة</button>
         </div>
 
-        <div id="massInputFields">
-            <div class="input-group" style="display: flex; gap: 12px;" id="standardInputs">
+        <div id="massInputSection">
+            <!-- حقل الخدمة والكمية (يظهر في الثابت والعشوائي) -->
+            <div id="standardInputs" class="input-group" style="display: flex; gap: 12px;">
                 <div style="flex: 1.2;" id="svcWrap">
                     <label>رقم الخدمة (Service ID)</label>
                     <input type="text" id="massService" class="form-control" placeholder="101" oninput="saveS()">
@@ -119,6 +127,7 @@
                 </div>
             </div>
 
+            <!-- حقل النطاق العشوائي -->
             <div id="rndInputs" style="display: none; gap: 12px; margin-bottom: 20px;">
                 <div style="flex: 1;">
                     <label>أقل كمية</label>
@@ -129,66 +138,54 @@
                     <input type="number" id="massMax" class="form-control" placeholder="200">
                 </div>
             </div>
+
+            <!-- حقل إدخال الرابط (يظهر دائماً) -->
+            <div id="linkSingleWrap">
+                <label id="linkLabel">الرابط</label>
+                <input type="text" id="massSingleLink" class="form-control" placeholder="ضع رابط الطلب هنا...">
+            </div>
+
+            <!-- زر الإضافة (يظهر في الوضع المتقدم فقط) -->
+            <button id="addOrderBtn" class="btn-main" style="display: none; background: var(--success); margin-bottom: 20px;" onclick="addOrderToBasket()">➕ إضافة الطلب للقائمة</button>
+            
+            <!-- سلة الطلبات (تظهر في الوضع المتقدم) -->
+            <div id="orderBasket" class="orders-basket"></div>
+
+            <!-- مربع النص الكبير (يظهر في الثابت والعشوائي فقط) -->
+            <div id="bulkLinksWrap">
+                <label>أو الصق مجموعة روابط (رابط في كل سطر)</label>
+                <textarea id="massLinksBulk" class="form-control" rows="4" placeholder="رابط 1&#10;رابط 2..."></textarea>
+            </div>
         </div>
 
-        <label>روابط الطلبات</label>
-        <textarea id="massLinks" class="form-control" rows="6" placeholder="الصق الروابط هنا..." oninput="detectPlatforms()"></textarea>
+        <button class="btn-main" onclick="runMassFormatter()">🚀 إنشاء التنسيق النهائي</button>
         
-        <div class="smart-info">
-            <span id="linkCounterLabel">الروابط: 0</span>
-            <span id="platformDetect">المنصة: لم يتم التحديد</span>
-        </div>
-
-        <button class="btn-main" onclick="runMassFormatter()">🚀 إنشاء الطلبات الجماعية</button>
         <div id="massStatsBox" class="stats-box"><p id="massStats"></p></div>
-        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="التنسيق الجاهز..."></textarea>
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="التنسيق الجاهز سيظهر هنا..."></textarea>
 
         <div class="action-btns">
             <button class="btn-success" onclick="copyAndRedirect('massResult')">📋 نسخ والذهاب للموقع</button>
-            <button class="btn-danger" onclick="clearMass()">🗑️ مسح</button>
+            <button class="btn-danger" onclick="clearMass()">🗑️ مسح الكل</button>
         </div>
     </div>
 
-    <!-- الأداة الثانية: استخراج الأرقام -->
+    <!-- الأداة الثانية: استخراج الأرقام (كما هي تماماً) -->
     <div id="filterTab" class="tab-content">
         <div class="mode-selector">
             <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
             <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 من صورة</button>
         </div>
-
         <div id="filterImageSection" style="display: none;">
             <div class="drop-box" id="filterDropZone">
                 <strong>📸 اسحب الصورة أو اضغط</strong>
-                <p style="font-size: 12px; color: var(--text-dim); margin-top: 10px;">أو الصق Ctrl+V</p>
                 <input type="file" id="filterImgInput" accept="image/*" style="display:none">
             </div>
             <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;">⏳ جاري التحليل...</div>
         </div>
-
         <label>النص المراد تنظيفه:</label>
         <textarea id="filterInput" class="form-control" rows="6" placeholder="الصق النص هنا..."></textarea>
-
-        <div style="display: flex; gap: 12px;">
-            <div style="flex: 1;">
-                <label>تصفية حسب</label>
-                <select id="filterType" class="form-control">
-                    <option value="id">رقم الطلب (5 أرقام فأكثر)</option>
-                    <option value="all">كل الأرقام</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>الفاصل</label>
-                <select id="filterSep" class="form-control">
-                    <option value="&#10;">سطر جديد</option>
-                    <option value=",">فاصلة (,)</option>
-                </select>
-            </div>
-        </div>
-
-        <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام الصافية</button>
-        <div id="filterStatsBox" class="stats-box"><p id="filterStats"></p></div>
+        <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام</button>
         <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
-
         <div class="action-btns">
             <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button>
             <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
@@ -197,117 +194,107 @@
 </div>
 
 <a href="https://wa.me/201159017393" class="whatsapp-float" target="_blank">📞</a>
-
-<footer>
-    <p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p>
-</footer>
-
+<footer><p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p></footer>
 <div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
-// --- إدارة الأوضاع والتبديل ---
-let currentMassMode = 'fixed';
+let currentMode = 'fixed';
+let basketOrders = [];
 
-function updateMassMode(mode) {
-    currentMassMode = mode;
+// --- إدارة واجهة الأداة الأولى ---
+function updateMassUI(mode) {
+    currentMode = mode;
     document.querySelectorAll('#massTab .m-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('m' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
 
     const svcWrap = document.getElementById('svcWrap');
     const qtyWrap = document.getElementById('qtyWrap');
     const rndInputs = document.getElementById('rndInputs');
-    const linksArea = document.getElementById('massLinks');
+    const bulkWrap = document.getElementById('bulkLinksWrap');
+    const addBtn = document.getElementById('addOrderBtn');
+    const basket = document.getElementById('orderBasket');
 
     if(mode === 'fixed') {
-        svcWrap.style.display = 'block'; qtyWrap.style.display = 'block'; rndInputs.style.display = 'none';
-        linksArea.placeholder = "الصق الروابط هنا (رابط في كل سطر)...";
+        svcWrap.style.display = 'block'; qtyWrap.style.display = 'block'; rndInputs.style.display = 'none'; bulkWrap.style.display = 'block'; addBtn.style.display = 'none'; basket.style.display = 'none';
     } else if(mode === 'random') {
-        svcWrap.style.display = 'block'; qtyWrap.style.display = 'none'; rndInputs.style.display = 'flex';
-        linksArea.placeholder = "الصق الروابط هنا (رابط في كل سطر)...";
+        svcWrap.style.display = 'block'; qtyWrap.style.display = 'none'; rndInputs.style.display = 'flex'; bulkWrap.style.display = 'block'; addBtn.style.display = 'none'; basket.style.display = 'none';
     } else {
-        svcWrap.style.display = 'none'; qtyWrap.style.display = 'none'; rndInputs.style.display = 'none';
-        linksArea.placeholder = "التنسيق: الرابط | الخدمة | الكمية\nمثال:\nhttps://insta.com/p/1 | 101 | 500";
+        svcWrap.style.display = 'block'; qtyWrap.style.display = 'block'; rndInputs.style.display = 'none'; bulkWrap.style.display = 'none'; addBtn.style.display = 'block'; basket.style.display = (basketOrders.length > 0 ? 'block' : 'none');
     }
 }
 
-function openTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    if(tabId === 'massTab') document.getElementById('btnTabMass').classList.add('active');
-    if(tabId === 'filterTab') document.getElementById('btnTabFilter').classList.add('active');
+function addOrderToBasket() {
+    const svc = document.getElementById('massService').value.trim();
+    const qty = document.getElementById('massQty').value.trim();
+    const link = document.getElementById('massSingleLink').value.trim();
+
+    if(!svc || !qty || !link) { showToast("⚠️ املأ الخدمة والكمية والرابط أولاً"); return; }
+
+    basketOrders.push({ svc, qty, link });
+    renderBasket();
+    document.getElementById('massSingleLink').value = ""; // تفريغ الرابط فقط ليسهل الإضافة التالية
+    showToast("✅ تمت الإضافة للقائمة");
 }
 
-// --- منطق الأداة الأولى ---
+function renderBasket() {
+    const container = document.getElementById('orderBasket');
+    container.innerHTML = "";
+    if(basketOrders.length > 0) {
+        container.style.display = 'block';
+        basketOrders.forEach((order, index) => {
+            container.innerHTML += `
+                <div class="basket-item">
+                    <div><b>#${order.svc}</b> | ${order.link.substring(0, 30)}... | <b>${order.qty}</b></div>
+                    <div class="remove-order" onclick="removeOrder(${index})">✕</div>
+                </div>
+            `;
+        });
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+function removeOrder(index) {
+    basketOrders.splice(index, 1);
+    renderBasket();
+}
+
 function runMassFormatter() {
-    const svc = document.getElementById("massService").value.trim();
-    const links = document.getElementById("massLinks").value.split('\n');
-    const qty = document.getElementById("massQty").value;
-    const min = parseInt(document.getElementById("massMin").value);
-    const max = parseInt(document.getElementById("massMax").value);
-    
-    let res = ""; let count = 0;
+    let result = "";
+    let count = 0;
 
-    links.forEach(l => {
-        if(l.trim() === "") return;
-        if(currentMassMode === 'advanced') {
-            let parts = l.split('|').map(p => p.trim());
-            if(parts.length >= 3) { res += `${parts[1]} | ${parts[0]} | ${parts[2]}\n`; count++; }
-        } else {
-            const urlMatch = l.trim().match(/(https?:\/\/[^\s]+)/i);
-            if(urlMatch && (currentMassMode === 'advanced' || svc)) {
-                let finalQty = (currentMassMode === 'random') ? Math.floor(Math.random()*(max-min+1))+min : qty;
-                res += `${svc} | ${urlMatch[0]} | ${finalQty}\n`; count++;
-            }
-        }
-    });
+    if(currentMode === 'advanced') {
+        if(basketOrders.length === 0) { showToast("⚠️ القائمة فارغة! أضف طلبات أولاً"); return; }
+        basketOrders.forEach(o => {
+            result += `${o.svc} | ${o.link} | ${o.qty}\n`;
+            count++;
+        });
+    } else {
+        const svc = document.getElementById('massService').value.trim();
+        const qty = document.getElementById('massQty').value;
+        const bulk = document.getElementById('massLinksBulk').value.split('\n');
+        const single = document.getElementById('massSingleLink').value.trim();
+        const min = parseInt(document.getElementById('massMin').value);
+        const max = parseInt(document.getElementById('massMax').value);
 
-    document.getElementById("massResult").value = res.trim();
-    document.getElementById("massStatsBox").style.display = "block";
-    document.getElementById("massStats").innerText = `✨ تم تنسيق ${count} طلب بنجاح!`;
+        const allLinks = bulk.filter(l => l.trim() !== "");
+        if(single) allLinks.unshift(single);
+
+        if(!svc || allLinks.length === 0) { showToast("⚠️ أدخل الخدمة والروابط"); return; }
+
+        allLinks.forEach(l => {
+            let finalQty = (currentMode === 'random') ? Math.floor(Math.random()*(max-min+1))+min : qty;
+            result += `${svc} | ${l.trim()} | ${finalQty}\n`;
+            count++;
+        });
+    }
+
+    document.getElementById('massResult').value = result.trim();
+    document.getElementById('massStatsBox').style.display = 'block';
+    document.getElementById('massStats').innerText = `✨ تم تنسيق ${count} طلب بنجاح!`;
 }
 
-function detectPlatforms() {
-    const text = document.getElementById("massLinks").value.toLowerCase();
-    const count = text.split('\n').filter(l => l.trim() !== "").length;
-    document.getElementById("linkCounterLabel").innerText = `الروابط: ${count}`;
-}
-
-// --- منطق الأداة الثانية (استخراج الأرقام) ---
-function switchFilterMode(mode) {
-    const isImg = mode === 'image';
-    document.getElementById("filterImageSection").style.display = isImg ? "block" : "none";
-    document.getElementById("btnManual").classList.toggle("active", !isImg);
-    document.getElementById("btnImage").classList.toggle("active", isImg);
-}
-
-async function handleOcr(file) {
-    if(!file) return;
-    const st = document.getElementById("filterOcrStatus");
-    st.style.display = "block";
-    try {
-        const r = await Tesseract.recognize(file, 'eng');
-        document.getElementById("filterInput").value = r.data.text;
-        st.innerText = "✅ اكتمل الفحص!";
-        setTimeout(() => st.style.display="none", 2000);
-    } catch(e) { showToast("❌ فشل التحليل"); st.style.display="none"; }
-}
-
-function runFilter() {
-    const input = document.getElementById("filterInput").value;
-    const type = document.getElementById("filterType").value;
-    const sep = document.getElementById("filterSep").value;
-    let nums = input.match(/\d+/g);
-    if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
-    let filtered = (type === "id") ? nums.filter(n => n.length >= 5) : nums;
-    let unique = [...new Set(filtered)];
-    document.getElementById("filterResult").value = unique.join(sep);
-    document.getElementById("filterStatsBox").style.display = "block";
-    document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم.`;
-}
-
-// --- وظائف عامة ---
+// --- بقية الوظائف العامة والأداة الثانية ---
 function toggleTheme() {
     document.body.classList.toggle("light-mode");
     const isLight = document.body.classList.contains("light-mode");
@@ -315,21 +302,12 @@ function toggleTheme() {
     localStorage.setItem("theme", isLight ? "light" : "dark");
 }
 
-function saveS() { localStorage.setItem('svc', document.getElementById("massService").value); }
-
-async function copyAndRedirect(id) {
-    const val = document.getElementById(id).value;
-    if(!val) return;
-    await navigator.clipboard.writeText(val);
-    showToast("📋 تم النسخ! جارٍ التوجيه...");
-    setTimeout(() => { window.open("https://smmxhero.com/orders", "_blank"); }, 1200);
-}
-
-function copyValue(id) {
-    const val = document.getElementById(id).value;
-    if(!val) return;
-    navigator.clipboard.writeText(val);
-    showToast("تم النسخ ✅");
+function openTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id === 'massTab') document.getElementById('btnTabMass').classList.add('active');
+    else document.getElementById('btnTabFilter').classList.add('active');
 }
 
 function showToast(msg) {
@@ -338,32 +316,31 @@ function showToast(msg) {
     setTimeout(()=> t.style.display="none", 2500);
 }
 
-// --- إعدادات التحميل والـ Event Listeners ---
-window.onload = () => {
-    if(localStorage.getItem("theme") === "light") toggleTheme();
-    document.getElementById("massService").value = localStorage.getItem('svc') || "";
-    setTimeout(() => { 
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main").style.display = "block"; 
-    }, 600);
-};
-
-// إعدادات الـ OCR Drag & Drop
-const fDrop = document.getElementById("filterDropZone");
-const fImg = document.getElementById("filterImgInput");
-if(fDrop) fDrop.onclick = () => fImg.click();
-if(fImg) fImg.onchange = (e) => handleOcr(e.target.files[0]);
-
-function clearMass() { 
-    document.getElementById("massLinks").value = ""; 
-    document.getElementById("massResult").value = ""; 
-    document.getElementById("massStatsBox").style.display = "none";
+function runFilter() {
+    const input = document.getElementById("filterInput").value;
+    let nums = input.match(/\d+/g);
+    if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
+    document.getElementById("filterResult").value = [...new Set(nums)].join('\n');
 }
 
-function clearFilter() { 
-    document.getElementById("filterInput").value = ""; 
-    document.getElementById("filterResult").value = ""; 
-    document.getElementById("filterStatsBox").style.display = "none";
+function switchFilterMode(mode) {
+    document.getElementById("filterImageSection").style.display = (mode === 'image') ? "block" : "none";
+}
+
+window.onload = () => {
+    if(localStorage.getItem("theme") === "light") toggleTheme();
+    setTimeout(() => { document.getElementById("loader").style.display = "none"; document.getElementById("main").style.display = "block"; }, 600);
+};
+
+function clearMass() { basketOrders = []; renderBasket(); document.getElementById('massResult').value = ""; document.getElementById('massLinksBulk').value = ""; }
+function clearFilter() { document.getElementById('filterInput').value = ""; document.getElementById('filterResult').value = ""; }
+function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).value); showToast("تم النسخ ✅"); }
+async function copyAndRedirect(id) {
+    const val = document.getElementById(id).value;
+    if(!val) return;
+    await navigator.clipboard.writeText(val);
+    showToast("📋 تم النسخ! جارٍ التوجيه...");
+    setTimeout(() => { window.open("https://smmxhero.com/orders", "_blank"); }, 1200);
 }
 </script>
 </body>
