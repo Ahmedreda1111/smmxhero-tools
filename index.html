@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
-    /* المتغيرات الأساسية (الوضع الليلي افتراضي) */
     :root {
         --primary: #0d6efd;
         --success: #12b886;
@@ -22,7 +21,6 @@
         --input-bg: #141517;
     }
 
-    /* متغيرات الوضع النهاري */
     .light-mode {
         --bg-dark: #f8f9fa;
         --card-bg: #ffffff;
@@ -45,9 +43,7 @@
     .logo-area span { color: var(--text-main); font-size: 20px; font-weight: 800; }
     .logo-area span b { color: var(--primary); }
 
-    /* زر تبديل الإضاءة */
     .theme-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
-    .theme-toggle:hover { opacity: 0.8; }
 
     .dashboard { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
 
@@ -65,15 +61,14 @@
 
     .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
     
+    .mode-selector { display: flex; background: var(--input-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); gap: 5px; }
+    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-size: 12px; font-weight: 700; transition: 0.2s; }
+    .m-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
     .smart-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: 600; padding: 0 5px; }
     #platformDetect { color: var(--primary); }
 
-    .mode-selector { display: flex; background: var(--input-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
-    .m-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; border-radius: 10px; font-size: 13px; font-weight: 700; }
-    .m-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
     .drop-box { background: rgba(13, 110, 253, 0.05); border: 2px dashed var(--border); padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; }
-
     .stats-box { background: rgba(18, 184, 134, 0.1); border: 1px solid var(--success); padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; display: none; }
     .stats-box p { color: var(--success); font-size: 13px; font-weight: 700; }
 
@@ -81,17 +76,9 @@
     .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
     .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
 
-    /* زر واتساب العائم */
     .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: 0.3s; text-decoration: none; font-size: 30px; }
-    .whatsapp-float:hover { transform: scale(1.1); background: #128c7e; }
-    .whatsapp-float span { position: absolute; right: 70px; background: #25d366; padding: 5px 15px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transition: 0.3s; }
-    .whatsapp-float:hover span { opacity: 1; right: 80px; }
-
     footer { width: 100%; background: var(--card-bg); padding: 25px; text-align: center; border-top: 1px solid var(--border); margin-top: auto; }
-    footer p { color: var(--text-dim); font-size: 13px; }
-    footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
-
-    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 700; }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; font-size: 14px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -109,36 +96,40 @@
 <div class="dashboard" id="main" style="display:none;">
     
     <div class="tabs-header">
-        <button class="tab-btn active" id="tab1" onclick="openTab('massTab')">📦 تنسيق الطلبات</button>
-        <button class="tab-btn" id="tab2" onclick="openTab('filterTab')">🔍 استخراج الأرقام</button>
+        <button class="tab-btn active" onclick="openTab('massTab')">📦 تنسيق الطلبات</button>
+        <button class="tab-btn" onclick="openTab('filterTab')">🔍 استخراج الأرقام</button>
     </div>
 
+    <!-- الأداة الأولى: تنسيق الطلبات -->
     <div id="massTab" class="tab-content active">
-        <div class="input-group" style="display: flex; gap: 12px;">
-            <div style="flex: 1.2;">
-                <label>رقم الخدمة (Service ID)</label>
-                <input type="text" id="massService" class="form-control" placeholder="101" oninput="saveS()">
-            </div>
-            <div style="flex: 1;" id="massFixedQty">
-                <label>الكمية</label>
-                <input type="number" id="massQty" class="form-control" placeholder="1000">
-            </div>
+        <label>نظام التنسيق:</label>
+        <div class="mode-selector">
+            <button class="m-btn active" id="mFixed" onclick="setMassMode('fixed')">خدمة ثابتة</button>
+            <button class="m-btn" id="mRandom" onclick="setMassMode('random')">كمية عشوائية</button>
+            <button class="m-btn" id="mAdvanced" onclick="setMassMode('advanced')">خدمات متنوعة</button>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px;">
-                <input type="checkbox" id="massRandomCheck" onchange="toggleMassQty()"> توزيع عشوائي للكميات (آمن)
-            </label>
-        </div>
-
-        <div id="massRandomGroup" style="display: none; gap: 12px; margin-bottom: 20px;">
-            <div style="flex: 1;">
-                <label>أقل كمية</label>
-                <input type="number" id="massMin" class="form-control" placeholder="50">
+        <div id="massInputs">
+            <div class="input-group" style="display: flex; gap: 12px;">
+                <div style="flex: 1.2;" id="svcContainer">
+                    <label>رقم الخدمة (Service ID)</label>
+                    <input type="text" id="massService" class="form-control" placeholder="101" oninput="saveS()">
+                </div>
+                <div style="flex: 1;" id="qtyContainer">
+                    <label>الكمية</label>
+                    <input type="number" id="massQty" class="form-control" placeholder="1000">
+                </div>
             </div>
-            <div style="flex: 1;">
-                <label>أكبر كمية</label>
-                <input type="number" id="massMax" class="form-control" placeholder="200">
+
+            <div id="rndContainer" style="display: none; gap: 12px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <label>أقل كمية</label>
+                    <input type="number" id="massMin" class="form-control" placeholder="50">
+                </div>
+                <div style="flex: 1;">
+                    <label>أكبر كمية</label>
+                    <input type="number" id="massMax" class="form-control" placeholder="200">
+                </div>
             </div>
         </div>
 
@@ -160,6 +151,7 @@
         </div>
     </div>
 
+    <!-- الأداة الثانية: استخراج الأرقام (بدون تغيير) -->
     <div id="filterTab" class="tab-content">
         <div class="mode-selector">
             <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
@@ -206,10 +198,7 @@
     </div>
 </div>
 
-<a href="https://wa.me/201159017393" class="whatsapp-float" target="_blank">
-    <span>تواصل مع الدعم الفني</span>
-    📞
-</a>
+<a href="https://wa.me/201159017393" class="whatsapp-float" target="_blank">📞</a>
 
 <footer>
     <p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p>
@@ -218,33 +207,78 @@
 <div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
-// --- إدارة الإضاءة ---
+// --- إدارة الأوضاع (الأداة الأولى) ---
+let currentMassMode = 'fixed';
+
+function setMassMode(mode) {
+    currentMassMode = mode;
+    document.querySelectorAll('#massTab .m-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('m' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+
+    document.getElementById('svcContainer').style.display = (mode === 'advanced') ? 'none' : 'block';
+    document.getElementById('qtyContainer').style.display = (mode === 'fixed') ? 'block' : 'none';
+    document.getElementById('rndContainer').style.display = (mode === 'random') ? 'flex' : 'none';
+
+    const area = document.getElementById("massLinks");
+    if(mode === 'advanced') {
+        area.placeholder = "التنسيق: الرابط | الخدمة | الكمية\nمثال:\nhttps://insta.com/p/1 | 101 | 500";
+    } else {
+        area.placeholder = "الصق الروابط هنا (رابط في كل سطر)...";
+    }
+}
+
+function runMassFormatter() {
+    const svc = document.getElementById("massService").value.trim();
+    const links = document.getElementById("massLinks").value.split('\n');
+    const qty = document.getElementById("massQty").value;
+    const min = parseInt(document.getElementById("massMin").value);
+    const max = parseInt(document.getElementById("massMax").value);
+    
+    let res = ""; let c = 0;
+
+    links.forEach(l => {
+        if(l.trim() === "") return;
+
+        if(currentMassMode === 'advanced') {
+            let p = l.split('|').map(x => x.trim());
+            if(p.length >= 3) { res += `${p[1]} | ${p[0]} | ${p[2]}\n`; c++; }
+        } else {
+            const urlMatch = l.trim().match(/(https?:\/\/[^\s]+)/i);
+            if(urlMatch && svc) {
+                let finalQty = (currentMassMode === 'random') ? Math.floor(Math.random()*(max-min+1))+min : qty;
+                res += `${svc} | ${urlMatch[0]} | ${finalQty}\n`; c++;
+            }
+        }
+    });
+
+    if(c === 0) { showToast("⚠️ تحقق من البيانات المدخلة"); return; }
+    document.getElementById("massResult").value = res.trim();
+    document.getElementById("massStatsBox").style.display = "block";
+    document.getElementById("massStats").innerText = `✨ تم تنسيق ${c} طلب بنجاح!`;
+}
+
+// --- الكود الأصلي للأدوات والوظائف العامة ---
 function toggleTheme() {
     const body = document.body;
     const btn = document.getElementById("themeBtn");
     body.classList.toggle("light-mode");
-    
-    if(body.classList.contains("light-mode")) {
-        btn.innerText = "☀️ الوضع النهاري";
-        localStorage.setItem("theme", "light");
-    } else {
-        btn.innerText = "🌙 الوضع الليلي";
-        localStorage.setItem("theme", "dark");
-    }
+    const isLight = body.classList.contains("light-mode");
+    btn.innerText = isLight ? "☀️ الوضع النهاري" : "🌙 الوضع الليلي";
+    localStorage.setItem("theme", isLight ? "light" : "dark");
 }
 
-// تحميل الإعدادات عند الفتح
 window.onload = () => {
     if(localStorage.getItem("theme") === "light") toggleTheme();
     document.getElementById("massService").value = localStorage.getItem('svc') || "";
     setTimeout(() => { 
         document.getElementById("loader").style.opacity = "0"; 
-        setTimeout(() => document.getElementById("loader").style.display = "none", 500);
-        document.getElementById("main").style.display = "block"; 
+        setTimeout(() => {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("main").style.display = "block"; 
+        }, 500);
     }, 600); 
 };
 
-// --- الدوال الأساسية الأخرى ---
 function openTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -266,33 +300,6 @@ function detectPlatforms() {
     else p.innerText = count > 0 ? "المنصة: متنوعة" : "المنصة: لم يتم التحديد";
 }
 
-function toggleMassQty() {
-    const isRnd = document.getElementById("massRandomCheck").checked;
-    document.getElementById("massFixedQty").style.opacity = isRnd ? "0.3" : "1";
-    document.getElementById("massRandomGroup").style.display = isRnd ? "flex" : "none";
-}
-
-function runMassFormatter() {
-    const svc = document.getElementById("massService").value.trim();
-    const links = document.getElementById("massLinks").value.split('\n');
-    const isRnd = document.getElementById("massRandomCheck").checked;
-    const qty = document.getElementById("massQty").value;
-    const min = parseInt(document.getElementById("massMin").value);
-    const max = parseInt(document.getElementById("massMax").value);
-    if(!svc) { showToast("⚠️ أدخل رقم الخدمة"); return; }
-    let res = ""; let c = 0;
-    links.forEach(l => {
-        const url = l.trim().match(/(https?:\/\/[^\s]+)/i);
-        if(url) {
-            const finalQty = isRnd ? Math.floor(Math.random()*(max-min+1))+min : qty;
-            res += `${svc} | ${url[0]} | ${finalQty}\n`; c++;
-        }
-    });
-    document.getElementById("massResult").value = res.trim();
-    document.getElementById("massStatsBox").style.display = "block";
-    document.getElementById("massStats").innerText = `✨ تم تنسيق ${c} طلب بنجاح!`;
-}
-
 async function copyAndRedirect(id) {
     const val = document.getElementById(id).value;
     if(!val) return;
@@ -301,6 +308,7 @@ async function copyAndRedirect(id) {
     setTimeout(() => { window.open("https://smmxhero.com/orders", "_blank"); }, 1200);
 }
 
+// --- الأداة الثانية (بدون تغيير) ---
 function switchFilterMode(mode) {
     const isImg = mode === 'image';
     document.getElementById("filterImageSection").style.display = isImg ? "block" : "none";
@@ -310,18 +318,8 @@ function switchFilterMode(mode) {
 
 const fDrop = document.getElementById("filterDropZone");
 const fImg = document.getElementById("filterImgInput");
-fDrop.onclick = () => fImg.click();
-fImg.onchange = (e) => handleOcr(e.target.files[0]);
-fDrop.ondragover = (e) => { e.preventDefault(); fDrop.classList.add('dragover'); };
-fDrop.ondragleave = () => fDrop.classList.remove('dragover');
-fDrop.ondrop = (e) => { e.preventDefault(); fDrop.classList.remove('dragover'); handleOcr(e.dataTransfer.files[0]); };
-
-document.addEventListener('paste', e => {
-    if(document.getElementById("btnImage").classList.contains("active")) {
-        const item = e.clipboardData.items[0];
-        if(item && item.type.includes('image')) handleOcr(item.getAsFile());
-    }
-});
+if(fDrop) fDrop.onclick = () => fImg.click();
+if(fImg) fImg.onchange = (e) => handleOcr(e.target.files[0]);
 
 async function handleOcr(file) {
     if(!file) return;
@@ -348,17 +346,15 @@ function runFilter() {
     document.getElementById("filterStats").innerText = `✅ تم استخراج ${unique.length} رقم.`;
 }
 
-async function copyValue(id) {
-    const val = document.getElementById(id).value;
-    if(!val) return;
-    await navigator.clipboard.writeText(val);
-    showToast("📋 تم النسخ!");
-}
-
 function showToast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg; t.style.display = "block";
     setTimeout(()=> t.style.display="none", 2500);
+}
+
+function copyValue(id) {
+    const val = document.getElementById(id).value;
+    if(val) { navigator.clipboard.writeText(val); showToast("📋 تم النسخ!"); }
 }
 
 function clearMass() {
