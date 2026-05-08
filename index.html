@@ -72,7 +72,6 @@
     .btn-success { background: var(--success); flex: 1.5; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
     .btn-danger { background: var(--danger); flex: 1; padding: 14px; border-radius: 12px; color: white; font-weight: 700; border: none; cursor: pointer; }
 
-    /* سلة الطلبات المؤقتة */
     .orders-basket { background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; display: none; }
     .basket-item { padding: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     .basket-item:last-child { border-bottom: none; }
@@ -115,11 +114,10 @@
         </div>
 
         <div id="massInputSection">
-            <!-- حقل الخدمة والكمية (يظهر في الثابت والعشوائي) -->
             <div id="standardInputs" class="input-group" style="display: flex; gap: 12px;">
                 <div style="flex: 1.2;" id="svcWrap">
                     <label>رقم الخدمة (Service ID)</label>
-                    <input type="text" id="massService" class="form-control" placeholder="101" oninput="saveS()">
+                    <input type="text" id="massService" class="form-control" placeholder="101">
                 </div>
                 <div style="flex: 1;" id="qtyWrap">
                     <label>الكمية</label>
@@ -127,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- حقل النطاق العشوائي -->
             <div id="rndInputs" style="display: none; gap: 12px; margin-bottom: 20px;">
                 <div style="flex: 1;">
                     <label>أقل كمية</label>
@@ -139,19 +136,15 @@
                 </div>
             </div>
 
-            <!-- حقل إدخال الرابط (يظهر دائماً) -->
             <div id="linkSingleWrap">
                 <label id="linkLabel">الرابط</label>
                 <input type="text" id="massSingleLink" class="form-control" placeholder="ضع رابط الطلب هنا...">
             </div>
 
-            <!-- زر الإضافة (يظهر في الوضع المتقدم فقط) -->
             <button id="addOrderBtn" class="btn-main" style="display: none; background: var(--success); margin-bottom: 20px;" onclick="addOrderToBasket()">➕ إضافة الطلب للقائمة</button>
             
-            <!-- سلة الطلبات (تظهر في الوضع المتقدم) -->
             <div id="orderBasket" class="orders-basket"></div>
 
-            <!-- مربع النص الكبير (يظهر في الثابت والعشوائي فقط) -->
             <div id="bulkLinksWrap">
                 <label>أو الصق مجموعة روابط (رابط في كل سطر)</label>
                 <textarea id="massLinksBulk" class="form-control" rows="4" placeholder="رابط 1&#10;رابط 2..."></textarea>
@@ -169,7 +162,7 @@
         </div>
     </div>
 
-    <!-- الأداة الثانية: استخراج الأرقام (كما هي تماماً) -->
+    <!-- الأداة الثانية: استخراج الأرقام (تم تعديل الفاصلة هنا) -->
     <div id="filterTab" class="tab-content">
         <div class="mode-selector">
             <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
@@ -201,7 +194,6 @@
 let currentMode = 'fixed';
 let basketOrders = [];
 
-// --- إدارة واجهة الأداة الأولى ---
 function updateMassUI(mode) {
     currentMode = mode;
     document.querySelectorAll('#massTab .m-btn').forEach(b => b.classList.remove('active'));
@@ -227,13 +219,11 @@ function addOrderToBasket() {
     const svc = document.getElementById('massService').value.trim();
     const qty = document.getElementById('massQty').value.trim();
     const link = document.getElementById('massSingleLink').value.trim();
-
-    if(!svc || !qty || !link) { showToast("⚠️ املأ الخدمة والكمية والرابط أولاً"); return; }
-
+    if(!svc || !qty || !link) { showToast("⚠️ املأ البيانات"); return; }
     basketOrders.push({ svc, qty, link });
     renderBasket();
-    document.getElementById('massSingleLink').value = ""; // تفريغ الرابط فقط ليسهل الإضافة التالية
-    showToast("✅ تمت الإضافة للقائمة");
+    document.getElementById('massSingleLink').value = "";
+    showToast("✅ تمت الإضافة");
 }
 
 function renderBasket() {
@@ -241,34 +231,19 @@ function renderBasket() {
     container.innerHTML = "";
     if(basketOrders.length > 0) {
         container.style.display = 'block';
-        basketOrders.forEach((order, index) => {
-            container.innerHTML += `
-                <div class="basket-item">
-                    <div><b>#${order.svc}</b> | ${order.link.substring(0, 30)}... | <b>${order.qty}</b></div>
-                    <div class="remove-order" onclick="removeOrder(${index})">✕</div>
-                </div>
-            `;
+        basketOrders.forEach((o, i) => {
+            container.innerHTML += `<div class="basket-item"><div><b>#${o.svc}</b> | ${o.link.substring(0,20)}... | <b>${o.qty}</b></div><div class="remove-order" onclick="removeOrder(${i})">✕</div></div>`;
         });
-    } else {
-        container.style.display = 'none';
-    }
+    } else container.style.display = 'none';
 }
 
-function removeOrder(index) {
-    basketOrders.splice(index, 1);
-    renderBasket();
-}
+function removeOrder(i) { basketOrders.splice(i, 1); renderBasket(); }
 
 function runMassFormatter() {
     let result = "";
     let count = 0;
-
     if(currentMode === 'advanced') {
-        if(basketOrders.length === 0) { showToast("⚠️ القائمة فارغة! أضف طلبات أولاً"); return; }
-        basketOrders.forEach(o => {
-            result += `${o.svc} | ${o.link} | ${o.qty}\n`;
-            count++;
-        });
+        basketOrders.forEach(o => { result += `${o.svc} | ${o.link} | ${o.qty}\n`; count++; });
     } else {
         const svc = document.getElementById('massService').value.trim();
         const qty = document.getElementById('massQty').value;
@@ -276,25 +251,19 @@ function runMassFormatter() {
         const single = document.getElementById('massSingleLink').value.trim();
         const min = parseInt(document.getElementById('massMin').value);
         const max = parseInt(document.getElementById('massMax').value);
-
         const allLinks = bulk.filter(l => l.trim() !== "");
         if(single) allLinks.unshift(single);
-
-        if(!svc || allLinks.length === 0) { showToast("⚠️ أدخل الخدمة والروابط"); return; }
-
         allLinks.forEach(l => {
             let finalQty = (currentMode === 'random') ? Math.floor(Math.random()*(max-min+1))+min : qty;
             result += `${svc} | ${l.trim()} | ${finalQty}\n`;
             count++;
         });
     }
-
     document.getElementById('massResult').value = result.trim();
     document.getElementById('massStatsBox').style.display = 'block';
-    document.getElementById('massStats').innerText = `✨ تم تنسيق ${count} طلب بنجاح!`;
+    document.getElementById('massStats').innerText = `✨ تم تنسيق ${count} طلب!`;
 }
 
-// --- بقية الوظائف العامة والأداة الثانية ---
 function toggleTheme() {
     document.body.classList.toggle("light-mode");
     const isLight = document.body.classList.contains("light-mode");
@@ -306,8 +275,7 @@ function openTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if(id === 'massTab') document.getElementById('btnTabMass').classList.add('active');
-    else document.getElementById('btnTabFilter').classList.add('active');
+    document.getElementById(id === 'massTab' ? 'btnTabMass' : 'btnTabFilter').classList.add('active');
 }
 
 function showToast(msg) {
@@ -316,11 +284,13 @@ function showToast(msg) {
     setTimeout(()=> t.style.display="none", 2500);
 }
 
+// تعديل الفاصلة هنا
 function runFilter() {
     const input = document.getElementById("filterInput").value;
     let nums = input.match(/\d+/g);
     if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
-    document.getElementById("filterResult").value = [...new Set(nums)].join('\n');
+    // تم إرجاع الفاصلة لتكون النتيجة مفصولة بـ ,
+    document.getElementById("filterResult").value = [...new Set(nums)].join(',');
 }
 
 function switchFilterMode(mode) {
@@ -332,7 +302,7 @@ window.onload = () => {
     setTimeout(() => { document.getElementById("loader").style.display = "none"; document.getElementById("main").style.display = "block"; }, 600);
 };
 
-function clearMass() { basketOrders = []; renderBasket(); document.getElementById('massResult').value = ""; document.getElementById('massLinksBulk').value = ""; }
+function clearMass() { basketOrders = []; renderBasket(); document.getElementById('massResult').value = ""; }
 function clearFilter() { document.getElementById('filterInput').value = ""; document.getElementById('filterResult').value = ""; }
 function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).value); showToast("تم النسخ ✅"); }
 async function copyAndRedirect(id) {
