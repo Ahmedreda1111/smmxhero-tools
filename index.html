@@ -43,7 +43,8 @@
     .logo-area span { color: var(--text-main); font-size: 20px; font-weight: 800; }
     .logo-area span b { color: var(--primary); }
 
-    .theme-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+    .header-actions { display: flex; gap: 10px; }
+    .theme-toggle, .lang-toggle { background: var(--border); border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; color: var(--text-main); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
 
     .dashboard { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
 
@@ -83,9 +84,13 @@
     .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; text-decoration: none; font-size: 30px; }
     footer { width: 100%; background: var(--card-bg); padding: 25px; text-align: center; border-top: 1px solid var(--border); margin-top: auto; }
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--primary); color: white; padding: 12px 30px; border-radius: 50px; display: none; z-index: 10000; font-size: 14px; font-weight: 700; }
+
+    /* CSS للتعامل مع اتجاه الصفحة عند تغيير اللغة */
+    body.en { direction: ltr; }
+    body.ar { direction: rtl; }
 </style>
 </head>
-<body>
+<body class="ar">
 
 <div id="loader"><img src="logo.ico" alt="Loading"></div>
 
@@ -94,103 +99,203 @@
         <img src="logo.ico" alt="Logo">
         <span>SMMX<b>HERO</b></span>
     </a>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 الوضع الليلي</button>
+    <div class="header-actions">
+        <button class="lang-toggle" onclick="toggleLanguage()" id="langBtn">🌐 English</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 الوضع الليلي</button>
+    </div>
 </header>
 
 <div class="dashboard" id="main" style="display:none;">
     
     <div class="tabs-header">
-        <button class="tab-btn active" id="btnTabMass" onclick="openTab('massTab')">📦 تنسيق الطلبات</button>
-        <button class="tab-btn" id="btnTabFilter" onclick="openTab('filterTab')">🔍 استخراج الأرقام</button>
+        <button class="tab-btn active" id="btnTabMass" onclick="openTab('massTab')" data-lang="tab_mass">📦 تنسيق الطلبات</button>
+        <button class="tab-btn" id="btnTabFilter" onclick="openTab('filterTab')" data-lang="tab_filter">🔍 استخراج الأرقام</button>
     </div>
 
     <!-- الأداة الأولى: تنسيق الطلبات -->
     <div id="massTab" class="tab-content active">
-        <label>نظام التنسيق:</label>
+        <label data-lang="format_system">نظام التنسيق:</label>
         <div class="mode-selector">
-            <button class="m-btn active" id="mFixed" onclick="updateMassUI('fixed')">خدمة ثابتة</button>
-            <button class="m-btn" id="mRandom" onclick="updateMassUI('random')">كمية عشوائية</button>
-            <button class="m-btn" id="mAdvanced" onclick="updateMassUI('advanced')">خدمات متنوعة</button>
+            <button class="m-btn active" id="mFixed" onclick="updateMassUI('fixed')" data-lang="mode_fixed">خدمة ثابتة</button>
+            <button class="m-btn" id="mRandom" onclick="updateMassUI('random')" data-lang="mode_random">كمية عشوائية</button>
+            <button class="m-btn" id="mAdvanced" onclick="updateMassUI('advanced')" data-lang="mode_advanced">خدمات متنوعة</button>
         </div>
 
         <div id="massInputSection">
             <div id="standardInputs" class="input-group" style="display: flex; gap: 12px;">
                 <div style="flex: 1.2;" id="svcWrap">
-                    <label>رقم الخدمة (Service ID)</label>
+                    <label data-lang="service_id">رقم الخدمة (Service ID)</label>
                     <input type="text" id="massService" class="form-control" placeholder="101">
                 </div>
                 <div style="flex: 1;" id="qtyWrap">
-                    <label>الكمية</label>
+                    <label data-lang="quantity">الكمية</label>
                     <input type="number" id="massQty" class="form-control" placeholder="1000">
                 </div>
             </div>
 
             <div id="rndInputs" style="display: none; gap: 12px; margin-bottom: 20px;">
                 <div style="flex: 1;">
-                    <label>أقل كمية</label>
+                    <label data-lang="min_qty">أقل كمية</label>
                     <input type="number" id="massMin" class="form-control" placeholder="50">
                 </div>
                 <div style="flex: 1;">
-                    <label>أكبر كمية</label>
+                    <label data-lang="max_qty">أكبر كمية</label>
                     <input type="number" id="massMax" class="form-control" placeholder="200">
                 </div>
             </div>
 
             <div id="linkSingleWrap">
-                <label id="linkLabel">الرابط</label>
-                <input type="text" id="massSingleLink" class="form-control" placeholder="ضع رابط الطلب هنا...">
+                <label id="linkLabel" data-lang="link">الرابط</label>
+                <input type="text" id="massSingleLink" class="form-control" placeholder="...">
             </div>
 
-            <button id="addOrderBtn" class="btn-main" style="display: none; background: var(--success); margin-bottom: 20px;" onclick="addOrderToBasket()">➕ إضافة الطلب للقائمة</button>
+            <button id="addOrderBtn" class="btn-main" style="display: none; background: var(--success); margin-bottom: 20px;" onclick="addOrderToBasket()" data-lang="add_to_list">➕ إضافة الطلب للقائمة</button>
             
             <div id="orderBasket" class="orders-basket"></div>
 
             <div id="bulkLinksWrap">
-                <label>أو الصق مجموعة روابط (رابط في كل سطر)</label>
-                <textarea id="massLinksBulk" class="form-control" rows="4" placeholder="رابط 1&#10;رابط 2..."></textarea>
+                <label data-lang="bulk_links">أو الصق مجموعة روابط (رابط في كل سطر)</label>
+                <textarea id="massLinksBulk" class="form-control" rows="4" placeholder="Link 1..."></textarea>
             </div>
         </div>
 
-        <button class="btn-main" onclick="runMassFormatter()">🚀 إنشاء التنسيق النهائي</button>
+        <button class="btn-main" onclick="runMassFormatter()" data-lang="generate_btn">🚀 إنشاء التنسيق النهائي</button>
         
         <div id="massStatsBox" class="stats-box"><p id="massStats"></p></div>
-        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="التنسيق الجاهز سيظهر هنا..."></textarea>
+        <textarea id="massResult" class="form-control" rows="5" readonly placeholder="..."></textarea>
 
         <div class="action-btns">
-            <button class="btn-success" onclick="copyAndRedirect('massResult')">📋 نسخ والذهاب للموقع</button>
-            <button class="btn-danger" onclick="clearMass()">🗑️ مسح الكل</button>
+            <button class="btn-success" onclick="copyAndRedirect('massResult')" data-lang="copy_go">📋 نسخ والذهاب للموقع</button>
+            <button class="btn-danger" onclick="clearMass()" data-lang="clear_all">🗑️ مسح الكل</button>
         </div>
     </div>
 
-    <!-- الأداة الثانية: استخراج الأرقام (تم تعديل الفاصلة هنا) -->
+    <!-- الأداة الثانية: استخراج الأرقام -->
     <div id="filterTab" class="tab-content">
         <div class="mode-selector">
-            <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')">⌨️ يدوي</button>
-            <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')">📷 من صورة</button>
+            <button class="m-btn active" id="btnManual" onclick="switchFilterMode('manual')" data-lang="filter_manual">⌨️ يدوي</button>
+            <button class="m-btn" id="btnImage" onclick="switchFilterMode('image')" data-lang="filter_image">📷 من صورة</button>
         </div>
         <div id="filterImageSection" style="display: none;">
             <div class="drop-box" id="filterDropZone">
-                <strong>📸 اسحب الصورة أو اضغط</strong>
+                <strong data-lang="drop_box">📸 اسحب الصورة أو اضغط</strong>
                 <input type="file" id="filterImgInput" accept="image/*" style="display:none">
             </div>
-            <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;">⏳ جاري التحليل...</div>
+            <div id="filterOcrStatus" style="text-align:center; color:#facc15; font-size:12px; margin-bottom:15px; display:none;" data-lang="analyzing">⏳ جاري التحليل...</div>
         </div>
-        <label>النص المراد تنظيفه:</label>
-        <textarea id="filterInput" class="form-control" rows="6" placeholder="الصق النص هنا..."></textarea>
-        <button class="btn-main" onclick="runFilter()">⚡ استخراج الأرقام</button>
+        <label data-lang="text_to_clean">النص المراد تنظيفه:</label>
+        <textarea id="filterInput" class="form-control" rows="6" placeholder="..."></textarea>
+        <button class="btn-main" onclick="runFilter()" data-lang="extract_btn">⚡ استخراج الأرقام</button>
         <textarea id="filterResult" class="form-control" rows="5" readonly></textarea>
         <div class="action-btns">
-            <button class="btn-success" onclick="copyValue('filterResult')">📋 نسخ</button>
-            <button class="btn-danger" onclick="clearFilter()">🗑️ مسح</button>
+            <button class="btn-success" onclick="copyValue('filterResult')" data-lang="copy">📋 نسخ</button>
+            <button class="btn-danger" onclick="clearFilter()" data-lang="clear">🗑️ مسح</button>
         </div>
     </div>
 </div>
 
 <a href="https://wa.me/201159017393" class="whatsapp-float" target="_blank">📞</a>
-<footer><p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p></footer>
+<footer id="footerText"><p>© 2026 جميع الحقوق محفوظة لـ <a href="https://smmxhero.com">SMMXHERO.COM</a></p></footer>
 <div class="toast" id="toast">تم النسخ ✅</div>
 
 <script>
+// --- كود الترجمة ---
+const translations = {
+    ar: {
+        tab_mass: "📦 تنسيق الطلبات",
+        tab_filter: "🔍 استخراج الأرقام",
+        format_system: "نظام التنسيق:",
+        mode_fixed: "خدمة ثابتة",
+        mode_random: "كمية عشوائية",
+        mode_advanced: "خدمات متنوعة",
+        service_id: "رقم الخدمة (Service ID)",
+        quantity: "الكمية",
+        min_qty: "أقل كمية",
+        max_qty: "أكبر كمية",
+        link: "الرابط",
+        add_to_list: "➕ إضافة الطلب للقائمة",
+        bulk_links: "أو الصق مجموعة روابط (رابط في كل سطر)",
+        generate_btn: "🚀 إنشاء التنسيق النهائي",
+        copy_go: "📋 نسخ والذهاب للموقع",
+        clear_all: "🗑️ مسح الكل",
+        filter_manual: "⌨️ يدوي",
+        filter_image: "📷 من صورة",
+        drop_box: "📸 اسحب الصورة أو اضغط",
+        analyzing: "⏳ جاري التحليل...",
+        text_to_clean: "النص المراد تنظيفه:",
+        extract_btn: "⚡ استخراج الأرقام",
+        copy: "📋 نسخ",
+        clear: "🗑️ مسح",
+        theme_dark: "🌙 الوضع الليلي",
+        theme_light: "☀️ الوضع النهاري",
+        lang_btn: "🌐 English",
+        toast_copied: "تم النسخ ✅",
+        toast_empty: "⚠️ لا توجد بيانات",
+        footer: "© 2026 جميع الحقوق محفوظة لـ"
+    },
+    en: {
+        tab_mass: "📦 Mass Format",
+        tab_filter: "🔍 Numbers Extractor",
+        format_system: "Format System:",
+        mode_fixed: "Fixed Service",
+        mode_random: "Random Qty",
+        mode_advanced: "Advanced Mode",
+        service_id: "Service ID",
+        quantity: "Quantity",
+        min_qty: "Min Qty",
+        max_qty: "Max Qty",
+        link: "Link",
+        add_to_list: "➕ Add Order to List",
+        bulk_links: "Or paste multiple links (one per line)",
+        generate_btn: "🚀 Generate Format",
+        copy_go: "📋 Copy & Go to Site",
+        clear_all: "🗑️ Clear All",
+        filter_manual: "⌨️ Manual",
+        filter_image: "📷 Image OCR",
+        drop_box: "📸 Drag image or click",
+        analyzing: "⏳ Analyzing...",
+        text_to_clean: "Text to clean:",
+        extract_btn: "⚡ Extract Numbers",
+        copy: "📋 Copy",
+        clear: "🗑️ Clear",
+        theme_dark: "🌙 Dark Mode",
+        theme_light: "☀️ Light Mode",
+        lang_btn: "🌐 العربية",
+        toast_copied: "Copied ✅",
+        toast_empty: "⚠️ No data found",
+        footer: "© 2026 All Rights Reserved to"
+    }
+};
+
+let currentLang = localStorage.getItem("lang") || "ar";
+
+function toggleLanguage() {
+    currentLang = currentLang === "ar" ? "en" : "ar";
+    localStorage.setItem("lang", currentLang);
+    applyLanguage();
+}
+
+function applyLanguage() {
+    const texts = translations[currentLang];
+    document.body.className = currentLang === "en" ? "en" : "ar";
+    document.documentElement.dir = currentLang === "en" ? "ltr" : "rtl";
+    document.documentElement.lang = currentLang;
+
+    // ترجمة العناصر التي تحمل data-lang
+    document.querySelectorAll("[data-lang]").forEach(el => {
+        const key = el.getAttribute("data-lang");
+        if (texts[key]) el.innerText = texts[key];
+    });
+
+    // تحديث الأزرار والفوتر
+    document.getElementById("langBtn").innerText = texts.lang_btn;
+    const isLight = document.body.classList.contains("light-mode");
+    document.getElementById("themeBtn").innerText = isLight ? texts.theme_light : texts.theme_dark;
+    
+    document.getElementById("footerText").innerHTML = `<p>${texts.footer} <a href="https://smmxhero.com">SMMXHERO.COM</a></p>`;
+}
+
+// --- بقية الأكواد (معدلة قليلاً لتدعم التغيير) ---
 let currentMode = 'fixed';
 let basketOrders = [];
 
@@ -219,11 +324,11 @@ function addOrderToBasket() {
     const svc = document.getElementById('massService').value.trim();
     const qty = document.getElementById('massQty').value.trim();
     const link = document.getElementById('massSingleLink').value.trim();
-    if(!svc || !qty || !link) { showToast("⚠️ املأ البيانات"); return; }
+    if(!svc || !qty || !link) { showToast(currentLang === 'ar' ? "⚠️ املأ البيانات" : "⚠️ Fill all data"); return; }
     basketOrders.push({ svc, qty, link });
     renderBasket();
     document.getElementById('massSingleLink').value = "";
-    showToast("✅ تمت الإضافة");
+    showToast(currentLang === 'ar' ? "✅ تمت الإضافة" : "✅ Added");
 }
 
 function renderBasket() {
@@ -261,13 +366,15 @@ function runMassFormatter() {
     }
     document.getElementById('massResult').value = result.trim();
     document.getElementById('massStatsBox').style.display = 'block';
-    document.getElementById('massStats').innerText = `✨ تم تنسيق ${count} طلب!`;
+    const msg = currentLang === 'ar' ? `✨ تم تنسيق ${count} طلب!` : `✨ Formatted ${count} orders!`;
+    document.getElementById('massStats').innerText = msg;
 }
 
 function toggleTheme() {
     document.body.classList.toggle("light-mode");
     const isLight = document.body.classList.contains("light-mode");
-    document.getElementById("themeBtn").innerText = isLight ? "☀️ الوضع النهاري" : "🌙 الوضع الليلي";
+    const texts = translations[currentLang];
+    document.getElementById("themeBtn").innerText = isLight ? texts.theme_light : texts.theme_dark;
     localStorage.setItem("theme", isLight ? "light" : "dark");
 }
 
@@ -284,12 +391,10 @@ function showToast(msg) {
     setTimeout(()=> t.style.display="none", 2500);
 }
 
-// تعديل الفاصلة هنا
 function runFilter() {
     const input = document.getElementById("filterInput").value;
     let nums = input.match(/\d+/g);
-    if(!nums) { showToast("⚠️ لا توجد أرقام"); return; }
-    // تم إرجاع الفاصلة لتكون النتيجة مفصولة بـ ,
+    if(!nums) { showToast(translations[currentLang].toast_empty); return; }
     document.getElementById("filterResult").value = [...new Set(nums)].join(',');
 }
 
@@ -298,18 +403,22 @@ function switchFilterMode(mode) {
 }
 
 window.onload = () => {
-    if(localStorage.getItem("theme") === "light") toggleTheme();
-    setTimeout(() => { document.getElementById("loader").style.display = "none"; document.getElementById("main").style.display = "block"; }, 600);
+    applyLanguage(); // تطبيق اللغة المحفوظة أولاً
+    if(localStorage.getItem("theme") === "light") document.body.classList.add("light-mode");
+    setTimeout(() => { 
+        document.getElementById("loader").style.display = "none"; 
+        document.getElementById("main").style.display = "block"; 
+    }, 600);
 };
 
 function clearMass() { basketOrders = []; renderBasket(); document.getElementById('massResult').value = ""; }
 function clearFilter() { document.getElementById('filterInput').value = ""; document.getElementById('filterResult').value = ""; }
-function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).value); showToast("تم النسخ ✅"); }
+function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).value); showToast(translations[currentLang].toast_copied); }
 async function copyAndRedirect(id) {
     const val = document.getElementById(id).value;
     if(!val) return;
     await navigator.clipboard.writeText(val);
-    showToast("📋 تم النسخ! جارٍ التوجيه...");
+    showToast(currentLang === 'ar' ? "📋 تم النسخ! جارٍ التوجيه..." : "📋 Copied! Redirecting...");
     setTimeout(() => { window.open("https://smmxhero.com/orders", "_blank"); }, 1200);
 }
 </script>
